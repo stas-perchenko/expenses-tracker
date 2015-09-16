@@ -1,0 +1,21 @@
+<resources>
+    <string name="app_name">Expenses Tracker</string>
+
+    <string name="google_client_id">557190350054-5j8h306qm91fj31enjqg3lsmp82no9ea.apps.googleusercontent.com</string>
+
+    <string name="google_oauth2_request_params">{
+		\"client_id\": \"557190350054-5j8h306qm91fj31enjqg3lsmp82no9ea.apps.googleusercontent.com\",
+		\"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\",
+		\"token_uri\": \"https://accounts.google.com/o/oauth2/token\",
+		\"auth_provider_x509_cert_url\": \"https://www.googleapis.com/oauth2/v1/certs\",
+		\"redirect_uris\": [\"urn:ietf:wg:oauth:2.0:oob\",
+		\"http://localhost\"]
+	}</string>
+
+
+	<string name="authorization_error_empty_code">Authorization error - code was not received for unknown reason</string>
+	<string name="authorization_error_unknown">Authorization failed (no error description provided by server)</string>
+	<string name="authorization_access_denied">You must grant the application access to your Google Drive account</string>
+	<string name="authorization_access_described">Authorization failed (error description: \"%s\")</string>
+
+</resources>

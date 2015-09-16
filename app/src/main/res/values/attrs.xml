@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--  SlidingViewFlipper  -->
+    <declare-styleable name="SlidingViewFlipper">
+        <attr name="incrementOutAnimation" format="reference"/>
+        <attr name="incrementInAnimation" format="reference"/>
+        <attr name="decrementOutAnimation" format="reference"/>
+        <attr name="decrementInAnimation" format="reference"/>
+    </declare-styleable>
+</resources>

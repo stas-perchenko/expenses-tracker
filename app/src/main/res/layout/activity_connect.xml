@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.alperez.expensestracker.widget.SlidingViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:custom="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/anim_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    custom:incrementInAnimation="@anim/fly_from_right"
+    custom:incrementOutAnimation="@anim/fly_to_left"
+    custom:decrementInAnimation="@anim/fly_from_left"
+    custom:decrementOutAnimation="@anim/fly_to_right">
+
+    <!-- Select account screen -->
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="24dp"
+        android:paddingRight="24dp">
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="60"/>
+
+
+        <Button android:id="@+id/pick_account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:text="Pick Account" />
+
+        <EditText android:id="@+id/login"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:layout_marginTop="12dp"
+            android:hint="Account name"
+            android:gravity="center"/>
+
+        <Button android:id="@+id/sign_in"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="0"
+            android:layout_marginTop="12dp"
+            android:text="Sign in" />
+
+
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="40"/>
+    </LinearLayout>
+
+    <!-- Authorizing screen -->
+    <WebView android:id="@+id/web_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+    <!-- Processing screen for getting Access tokens and downloading/initializing DB -->
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</com.alperez.expensestracker.widget.SlidingViewFlipper>
+
+
+
