@@ -15,10 +15,10 @@ public class GoogleAccountCredentials {
     private String accountName;
     private OAuth2RequestParams oauth2RequestParams;
     private String[] scopes;
-    private String authorizationCode;
+    private AuthorizationCode authorizationCode;
     private GoogleApiTokens apiTokens;
 
-    public GoogleAccountCredentials(String accountName, String oauth2RequestParamsJson, String[] scopes, String authorizationCode) {
+    public GoogleAccountCredentials(String accountName, String oauth2RequestParamsJson, String[] scopes) {
         this.accountName = accountName;
         try {
             this.oauth2RequestParams = new OAuth2RequestParams(oauth2RequestParamsJson);
@@ -27,7 +27,6 @@ public class GoogleAccountCredentials {
             e.printStackTrace();
         }
         this.scopes = scopes;
-        this.authorizationCode = authorizationCode;
         validateInstance();
     }
 
@@ -68,7 +67,16 @@ public class GoogleAccountCredentials {
                     throw new IllegalArgumentException("GoogleApiTokens json can not be parsed");
                 }
             }
-            this.authorizationCode = jObj.optString("authorizationCode");
+
+
+            JSONObject jAuthCode = jObj.optJSONObject("authorizationCode");
+            if (jAuthCode != null) {
+                try {
+                    this.authorizationCode = new AuthorizationCode(jAuthCode.toString());
+                } catch(JSONException e) {
+                    throw new IllegalArgumentException("AuthorizationCode json can not be parsed");
+                }
+            }
         }
 
         validateInstance();
@@ -95,10 +103,10 @@ public class GoogleAccountCredentials {
     }
 
     public boolean isAuthorized() {
-        return !TextUtils.isEmpty(this.authorizationCode);
+        return this.authorizationCode != null;
     }
 
-    public void setAuthorizationCode(String authorizationCode) {
+    public void setAuthorizationCode(AuthorizationCode authorizationCode) {
         this.authorizationCode = authorizationCode;
     }
 
@@ -118,7 +126,7 @@ public class GoogleAccountCredentials {
         return scopes;
     }
 
-    public String getAuthorizationCode() {
+    public AuthorizationCode getAuthorizationCode() {
         return authorizationCode;
     }
 

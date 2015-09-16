@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.alperez.expensestracker.R;
+import com.alperez.expensestracker.googlelogin.model.AuthorizationCode;
 import com.alperez.expensestracker.googlelogin.model.AuthorizationState;
 import com.alperez.expensestracker.googlelogin.model.GoogleAccountCredentials;
 import com.alperez.expensestracker.googlelogin.utils.AuthorizationWebViewClient;
@@ -89,7 +90,7 @@ public class ConnectActivity extends Activity {
                     if (!TextUtils.isEmpty(email)) {
                         vFlipper.showNext();
 
-                        GoogleAccountCredentials credentials = new GoogleAccountCredentials(email, getResources().getString(R.string.google_oauth2_request_params), new String[]{Scopes.DRIVE_FILE}, null);
+                        GoogleAccountCredentials credentials = new GoogleAccountCredentials(email, getResources().getString(R.string.google_oauth2_request_params), new String[]{Scopes.DRIVE_FILE});
                         PreferencesUtils.saveGoogleAccountCredentials(ConnectActivity.this, credentials);
                         Uri authUri = GoogleOAuth2AuthorizationHelper.buildAuthorizationUrl(credentials);
                         mWebClient.setAccountCredentials(credentials);
@@ -119,9 +120,6 @@ public class ConnectActivity extends Activity {
             case GETTING_TOKENS:
                 //TODO
                 break;
-            case GETTING_DATABASE:
-                //TODO
-                break;
         }
     }
 
@@ -132,8 +130,8 @@ public class ConnectActivity extends Activity {
         }
 
         @Override
-        public void onComplete(GoogleAccountCredentials accountCredentials, String code, String error) {
-            if (code == null) {
+        public void onComplete(GoogleAccountCredentials accountCredentials, AuthorizationCode authCode, String error) {
+            if (authCode == null) {
                 String message = null;
                 if (TextUtils.isEmpty(error)) {
                     message = getResources().getString(R.string.authorization_error_unknown);
@@ -146,11 +144,8 @@ public class ConnectActivity extends Activity {
                 }
                 Toast.makeText(ConnectActivity.this, message, Toast.LENGTH_LONG).show();
                 goBackFromAuthorizing();
-            } else if (TextUtils.isEmpty(code)) {
-                Toast.makeText(ConnectActivity.this, R.string.authorization_error_empty_code, Toast.LENGTH_LONG).show();
-                ConnectActivity.this.finish();
             } else {
-                accountCredentials.setAuthorizationCode(code);
+                accountCredentials.setAuthorizationCode(authCode);
                 ConnectActivity.this.proceedWithAuthorizationCode(accountCredentials);
             }
         }

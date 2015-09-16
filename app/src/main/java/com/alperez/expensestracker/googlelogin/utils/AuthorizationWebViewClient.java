@@ -6,6 +6,7 @@ import android.text.TextUtils;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.alperez.expensestracker.googlelogin.model.AuthorizationCode;
 import com.alperez.expensestracker.googlelogin.model.AuthorizationState;
 import com.alperez.expensestracker.googlelogin.model.GoogleAccountCredentials;
 
@@ -16,7 +17,7 @@ public class AuthorizationWebViewClient extends WebViewClient {
 
     public interface OnAuthorizationWebViewDelegate {
         AuthorizationState getAuthState();
-        void onComplete(GoogleAccountCredentials accountCredentials, String code, String error);
+        void onComplete(GoogleAccountCredentials accountCredentials, AuthorizationCode authCode, String error);
     }
 
     private GoogleAccountCredentials accountCredentials;
@@ -44,7 +45,9 @@ public class AuthorizationWebViewClient extends WebViewClient {
             if (TextUtils.isEmpty(this.mRedirect)) throw new IllegalStateException("Redirect URL is not provided for the WebView client");
             if (url.startsWith(mRedirect)) {
                 Uri uri = Uri.parse(url);
-                this.stateProvider.onComplete(this.accountCredentials, uri.getQueryParameter("code"), uri.getQueryParameter("error"));
+
+                String code = uri.getQueryParameter("code");
+                this.stateProvider.onComplete(this.accountCredentials, (TextUtils.isEmpty(code) ? null : new AuthorizationCode(code, System.currentTimeMillis())), uri.getQueryParameter("error"));
             }
         }
     }
