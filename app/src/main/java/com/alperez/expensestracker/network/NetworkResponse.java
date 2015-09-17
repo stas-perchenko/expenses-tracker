@@ -138,6 +138,11 @@ public class NetworkResponse {
         return (connection.getResponseCode() >= 200) && connection.getResponseCode() < 300;
     }
 
+    public int getResponseCode() throws IOException{
+        checkDisconnected();
+        return connection.getResponseCode();
+    }
+
 
     public void release() {
         if (!disconnected) {
