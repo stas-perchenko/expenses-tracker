@@ -8,7 +8,7 @@ import android.widget.Toast;
 import com.alperez.expensestracker.googlelogin.activity.ConnectActivity;
 import com.alperez.expensestracker.model.Account;
 import com.alperez.expensestracker.network.CloudHelper;
-import com.alperez.expensestracker.utils.AppUtils;
+import com.alperez.expensestracker.network.Network;
 import com.alperez.expensestracker.utils.PreferencesUtils;
 
 import java.io.File;
@@ -50,7 +50,7 @@ public class LauncherActivity extends Activity {
             return;
         } else {
             //TODO Set content View for this actfivity
-            if (!AppUtils.isDeviceOnline(this)) {
+            if (!Network.isNetworkAvailable(this, true)) {
                 //TODO
                 //showNoNetworkDialog();
             } else {

@@ -159,6 +159,11 @@ public class ConnectActivity extends Activity {
     private void proceedWithAuthorizationCode(GoogleAccountCredentials accountCredentials) {
         PreferencesUtils.saveGoogleAccountCredentials(this, accountCredentials);
         //TODO proceed to get TOKEn
+
+        mState = AuthorizationState.GETTING_TOKENS;
+        vFlipper.showNext();
+
+
     }
 
 
