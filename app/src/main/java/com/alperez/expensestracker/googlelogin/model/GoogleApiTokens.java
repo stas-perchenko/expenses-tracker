@@ -66,6 +66,23 @@ public class GoogleApiTokens {
         validateToken();
     }
 
+    /**
+     * Creates an instance of this model with valid JSON object
+     * @param jTokens
+     * @param timeObtainedAt
+     * @throws JSONException
+     */
+    public GoogleApiTokens(@NonNull JSONObject jTokens, long timeObtainedAt) throws JSONException {
+        if (jTokens == null) throw new IllegalArgumentException("JSON argument must not be null");
+        this.refreshToken = jTokens.getString("refresh_token");
+        this.accessToken = jTokens.getString("access_token");
+        this.tokenType = jTokens.getString("token_type");
+        this.expiresInSeconds = jTokens.getInt("expires_in");
+        this.timeRefreshTokenObtainedAt= timeObtainedAt;
+        this.timeAccessTokenObtainedAt = timeObtainedAt;
+        validateToken();
+    }
+
 
     /**
      * Apply response of refreshing access token for this model. JSON format must be

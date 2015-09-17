@@ -12,7 +12,7 @@ import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Performs general network requests using HttpURLConnection
@@ -65,7 +65,7 @@ public class Network {
     }
 
 
-    public static String appendParamsToUrl(String baseUrl, HashMap<String, String> params) {
+    public static String appendParamsToUrl(String baseUrl, Map<String, String> params) {
         if (params == null || params.size() == 0) return baseUrl;
 
         StringBuilder urlBuilder = new StringBuilder();

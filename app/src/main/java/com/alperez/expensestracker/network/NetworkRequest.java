@@ -1,10 +1,13 @@
 package com.alperez.expensestracker.network;
 
+import android.net.Uri;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by stanislav.perchenko on 17-Sep-15.
@@ -15,8 +18,8 @@ public class NetworkRequest {
         POST, GET, PUT, DELETE, RESET
     }
 
-    private HashMap<String, String> headers;
-    private HashMap<String, String> params;
+    private Map<String, String> headers;
+    private Map<String, String> params;
     private String url;
     private Method method;
     private int timeOut = 10000;
@@ -35,18 +38,31 @@ public class NetworkRequest {
         this(url, params, method, null);
     }
 
-    public NetworkRequest(String url, HashMap<String, String> params, Method method, HashMap<String, String> headers) {
+    public NetworkRequest(String url, Map<String, String> params, Method method, Map<String, String> headers) {
         this.url = url;
         this.params = params;
         this.method = method;
-        this.headers = new HashMap<String, String>();
-        this.headers.put("Content-Type", "application/json");
 
-        if (headers != null) {
-            for (String key : headers.keySet()) {
-                this.headers.put(key, headers.get(key));
-            }
+
+        this.headers = new HashMap<String, String>();
+        if (headers != null) this.headers.putAll(headers);
+        if (!this.headers.containsKey("Content-Type")) {
+            this.headers.put("Content-Type", "application/json");
         }
+    }
+
+    private Uri mUri;
+    public Uri getUriForRequest() {
+        if (mUri == null) {
+            Uri.Builder builder = Uri.parse(this.url).buildUpon();
+            if (params != null) {
+                for (String key : params.keySet()) {
+                    builder.appendQueryParameter(key, params.get(key));
+                }
+            }
+            mUri = builder.build();
+        }
+        return mUri;
     }
 
     public void setData(String data) {
@@ -70,11 +86,11 @@ public class NetworkRequest {
         return url;
     }
 
-    public HashMap<String, String> getHeaders() {
+    public Map<String, String> getHeaders() {
         return headers;
     }
 
-    public HashMap<String, String> getParams() {
+    public Map<String, String> getParams() {
         return params;
     }
 

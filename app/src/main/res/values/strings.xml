@@ -5,6 +5,7 @@
 
     <string name="google_oauth2_request_params">{
 		\"client_id\": \"557190350054-5j8h306qm91fj31enjqg3lsmp82no9ea.apps.googleusercontent.com\",
+		\"client_secret\": \"************\",
 		\"auth_uri\": \"https://accounts.google.com/o/oauth2/auth\",
 		\"token_uri\": \"https://accounts.google.com/o/oauth2/token\",
 		\"auth_provider_x509_cert_url\": \"https://www.googleapis.com/oauth2/v1/certs\",

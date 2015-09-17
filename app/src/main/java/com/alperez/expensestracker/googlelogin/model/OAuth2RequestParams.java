@@ -20,9 +20,8 @@ import org.json.JSONObject;
  * Created by stanislav.perchenko on 14-Sep-15.
  */
 public class OAuth2RequestParams {
-    //TODO Implement this
-
     private String clientId;
+    private String clientSecret;
     private String authUri;
     private String tokenUri;
     private String authProviderX509CertUrl;
@@ -34,6 +33,7 @@ public class OAuth2RequestParams {
 
         JSONObject jObj = new JSONObject(json);
         this.clientId = jObj.getString("client_id");
+        this.clientSecret = jObj.getString("client_secret");
         this.authUri = jObj.getString("auth_uri");
         this.tokenUri = jObj.getString("token_uri");
         this.authProviderX509CertUrl = jObj.getString("auth_provider_x509_cert_url");
@@ -45,9 +45,9 @@ public class OAuth2RequestParams {
     }
 
     public String toJson() throws JSONException {
-        //TODO;
         JSONObject jObj = new JSONObject();
         jObj.put("client_id", this.clientId);
+        jObj.put("client_secret", this.clientSecret);
         jObj.put("auth_uri", this.authUri);
         jObj.put("token_uri", this.tokenUri);
         jObj.put("auth_provider_x509_cert_url", this.authProviderX509CertUrl);
@@ -62,6 +62,10 @@ public class OAuth2RequestParams {
 
     public String getClientId() {
         return clientId;
+    }
+
+    public String getClientSecret() {
+        return clientSecret;
     }
 
     public String getAuthUri() {
@@ -79,4 +83,13 @@ public class OAuth2RequestParams {
     public String[] getRedirectUris() {
         return redirectUris;
     }
+
+    private static final String LOCAL_URI_SIGN = "localhost";
+    public String getLocalRedirectUri() {
+        for (String s : redirectUris) {
+            if (s.contains(LOCAL_URI_SIGN)) return s;
+        }
+        return "";
+    }
+
 }
