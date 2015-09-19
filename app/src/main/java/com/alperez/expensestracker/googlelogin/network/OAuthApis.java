@@ -145,7 +145,7 @@ public class OAuthApis {
      * @param accountCreds    the progided credentials instance must have valid Access Token
      * @return
      */
-    public NetworkErrorDescriptor getGoogleAccountUser(@NonNull GoogleAccountCredentials accountCreds) {
+    public static NetworkErrorDescriptor getGoogleAccountUser(@NonNull GoogleAccountCredentials accountCreds) {
         NetworkErrorDescriptor err = null;
         if (accountCreds.getApiTokens() == null) {
             err = new NetworkErrorDescriptor(null);
