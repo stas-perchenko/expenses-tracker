@@ -114,6 +114,10 @@ public class GoogleAccountCredentials {
         this.apiTokens = apiTokens;
     }
 
+    public void setGoogleAccountUser(GoogleSimplifiedUser user) {
+        //TODO
+    }
+
     public String getAccountName() {
         return accountName;
     }
@@ -133,6 +137,10 @@ public class GoogleAccountCredentials {
     public GoogleApiTokens getApiTokens() {
         return apiTokens;
     }
+
+
+
+
 
     public void validateInstance() {
         if (TextUtils.isEmpty(this.accountName)) throw new IllegalStateException("Account name is not set");

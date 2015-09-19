@@ -14,24 +14,25 @@ public class GoogleSimplifiedUser {
     private String gender;
     private Name name;
     private String imageUrl;
-    private String imageCached;
     private String userUrl;
 
     public GoogleSimplifiedUser() {}
 
     public GoogleSimplifiedUser(String json) throws JSONException {
-        JSONObject jObj = new JSONObject(json);
-        this.id = jObj.optString("id", null);
-        this.displayName = jObj.optString("displayName", null);
-        this.nickname = jObj.optString("nickname", null);
-        this.gender = jObj.optString("gender", null);
-        if (jObj.has("image")) {
-            this.imageUrl = jObj.getJSONObject("image").optString("url", null);
+        this(new JSONObject(json));
+    }
+
+    public GoogleSimplifiedUser(JSONObject jUser) throws JSONException {
+        this.id = jUser.optString("id", null);
+        this.displayName = jUser.optString("displayName", null);
+        this.nickname = jUser.optString("nickname", null);
+        this.gender = jUser.optString("gender", null);
+        if (jUser.has("image")) {
+            this.imageUrl = jUser.getJSONObject("image").optString("url", null);
         }
-        this.imageCached = jObj.optString("imageCached", null);
-        this.userUrl = jObj.optString("url", null);
-        if (jObj.has("name")) {
-            this.name = new Name(jObj.getJSONObject("name"));
+        this.userUrl = jUser.optString("url", null);
+        if (jUser.has("name")) {
+            this.name = new Name(jUser.getJSONObject("name"));
         }
     }
 
@@ -46,7 +47,6 @@ public class GoogleSimplifiedUser {
             jImage.put("url", this.imageUrl);
             jObj.put("image", jImage);
         }
-        jObj.put("imageCached", this.imageCached);
         jObj.put("url", this.userUrl);
         if (this.name != null) {
             jObj.put("name", this.name.toJson());
@@ -100,14 +100,6 @@ public class GoogleSimplifiedUser {
 
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
-    }
-
-    public String getImageCached() {
-        return imageCached;
-    }
-
-    public void setImageCached(String imageCached) {
-        this.imageCached = imageCached;
     }
 
     public String getUserUrl() {
