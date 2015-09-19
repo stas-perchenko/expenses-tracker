@@ -56,10 +56,10 @@ public class SlidingViewFlipper extends ViewFlipper {
         super.showNext();
     }
 
-    public void showNext(int step) {
+    public void showNext(int absPageIndex) {
         setInAnimation(nextNewAnimation);
         setOutAnimation(nextOldAnimation);
-        super.setDisplayedChild(super.getDisplayedChild() + step);
+        super.setDisplayedChild(absPageIndex);
     }
 
     @Override
@@ -69,10 +69,10 @@ public class SlidingViewFlipper extends ViewFlipper {
         super.showPrevious();
     }
 
-    public void showPrevious(int step) {
+    public void showPrevious(int absPageIndex) {
         setInAnimation(prevNewAnimation);
         setOutAnimation(prevOldAnimation);
-        super.setDisplayedChild(super.getDisplayedChild() - step);
+        super.setDisplayedChild(absPageIndex);
     }
 
     public void showFirst() {

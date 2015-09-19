@@ -19,20 +19,24 @@ import com.alperez.expensestracker.R;
 import com.alperez.expensestracker.googlelogin.model.AuthorizationCode;
 import com.alperez.expensestracker.googlelogin.model.AuthorizationState;
 import com.alperez.expensestracker.googlelogin.model.GoogleAccountCredentials;
+import com.alperez.expensestracker.googlelogin.task.GetGoogleAccountUserTask;
+import com.alperez.expensestracker.googlelogin.task.GetTokenByAuthorizationCodeTask;
 import com.alperez.expensestracker.googlelogin.utils.AuthorizationWebViewClient;
 import com.alperez.expensestracker.googlelogin.utils.GoogleOAuth2AuthorizationHelper;
+import com.alperez.expensestracker.googlelogin.utils.PreferencesUtils;
 import com.alperez.expensestracker.googlelogin.utils.ViewUtils;
-import com.alperez.expensestracker.utils.PreferencesUtils;
+import com.alperez.expensestracker.network.NetworkErrorDescriptor;
 import com.alperez.expensestracker.widget.SlidingViewFlipper;
 import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.Scopes;
+
+import java.util.Map;
 
 /**
  * Created by stanislav.perchenko on 14-Sep-15.
  */
 public class ConnectActivity extends Activity {
     private static final int REQUEST_CODE_PICK_ACCOUNT = 101;
-    private static final int REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR = 102;
 
     private static final String[] OAUTH2_SCOPES = new String[]{
             Scopes.DRIVE_FILE,
@@ -90,21 +94,19 @@ public class ConnectActivity extends Activity {
         vBtnSignIn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //getToken();
                 if (mState == AuthorizationState.PICKING_ACCOUNT) {
                     String email = vEdtLogin.getText().toString();
                     if (!TextUtils.isEmpty(email)) {
                         vFlipper.showNext();
 
-                        GoogleAccountCredentials credentials = new GoogleAccountCredentials(email, getResources().getString(R.string.google_oauth2_request_params), OAUTH2_SCOPES);
+                        GoogleAccountCredentials credentials = new GoogleAccountCredentials(email,
+                                                                                            getResources().getString(R.string.google_oauth2_request_params),
+                                                                                            OAUTH2_SCOPES);
                         PreferencesUtils.saveGoogleAccountCredentials(ConnectActivity.this, credentials);
                         Uri authUri = GoogleOAuth2AuthorizationHelper.buildAuthorizationUrl(credentials);
                         mWebClient.setAccountCredentials(credentials);
                         mWebClient.setRedirectUrl(authUri.getQueryParameter(GoogleOAuth2AuthorizationHelper.AUTH_URL_PARAM_REDIRECT_URI));
                         vWeb.loadUrl(authUri.toString());
-
-                        vWeb.stopLoading();
-                        //vWeb.loadUrl("http://www.google.com.ua");
                         mState = AuthorizationState.AUTHORIZING;
                     }
                 }
@@ -124,7 +126,12 @@ public class ConnectActivity extends Activity {
                 goBackFromAuthorizing();
                 break;
             case GETTING_TOKENS:
-                //TODO
+            case GETTING_USER:
+                goBackFromPage2();
+                break;
+            case AUTHORIZED:
+            case AUTHORIZATION_FAILED:
+                goToTheFirstPage();
                 break;
         }
     }
@@ -157,27 +164,62 @@ public class ConnectActivity extends Activity {
         }
     });
 
+
+    private GetTokenByAuthorizationCodeTask mGetTokenTask;
+
     /**
      * At this stage an instance for GoogleAccountCredentials must contain valid Authorization Code.
      * This instance of GoogleAccountCredentials is saved into preferences here.
-     * @param accountCredentials
+     * @param credentials
      */
-    private void proceedWithAuthorizationCode(GoogleAccountCredentials accountCredentials) {
-        PreferencesUtils.saveGoogleAccountCredentials(this, accountCredentials);
-        //TODO proceed to get TOKEn
-
-
-
-
-
-
-
-
+    private void proceedWithAuthorizationCode(GoogleAccountCredentials credentials) {
+        PreferencesUtils.saveGoogleAccountCredentials(this, credentials);
+        mGetTokenTask = new GetTokenByAuthorizationCodeTask() {
+            @Override
+            protected void onPostExecute(final Map<String, Object> result) {
+                if (result.containsKey(GetTokenByAuthorizationCodeTask.RESULT_KEY_ERROR_DESCRIPTOR)) {
+                    //----  Error occured  ----
+                    setStateAuthorizationFailed((GoogleAccountCredentials) result.get(GetTokenByAuthorizationCodeTask.RESULT_KEY_CREDENTIALS), (NetworkErrorDescriptor) result.get(GetTokenByAuthorizationCodeTask.RESULT_KEY_ERROR_DESCRIPTOR));
+                } else {
+                    //----  Got access tokens - proceed firther  ----
+                    ConnectActivity.this.getWindow().getDecorView().postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            proceedWithGettingUserInfo((GoogleAccountCredentials) result.get(GetTokenByAuthorizationCodeTask.RESULT_KEY_CREDENTIALS));
+                        }
+                    }, 50);
+                }
+                mGetTokenTask = null;
+            }
+        };
         mState = AuthorizationState.GETTING_TOKENS;
+        updateStatusPresentationPage2();
         vFlipper.showNext();
-
-
+        mGetTokenTask.safeExecute(credentials);
     }
+
+    private GetGoogleAccountUserTask mGetUserTask;
+
+    private void proceedWithGettingUserInfo(GoogleAccountCredentials credentials) {
+        PreferencesUtils.saveGoogleAccountCredentials(ConnectActivity.this, credentials);
+        mGetUserTask = new GetGoogleAccountUserTask() {
+            @Override
+            protected void onPostExecute(Map<String, Object> result) {
+                if (result.containsKey(GetGoogleAccountUserTask.RESULT_KEY_ERROR_DESCRIPTOR)) {
+                    //----  Error occured  ----
+                    setStateAuthorizationFailed((GoogleAccountCredentials) result.get(GetGoogleAccountUserTask.RESULT_KEY_CREDENTIALS), (NetworkErrorDescriptor) result.get(GetGoogleAccountUserTask.RESULT_KEY_ERROR_DESCRIPTOR));
+                } else {
+                    //----  Got User account data  ----
+                    setStateAuthorized((GoogleAccountCredentials) result.get(GetGoogleAccountUserTask.RESULT_KEY_CREDENTIALS));
+                }
+                mGetUserTask = null;
+            }
+        };
+        mState = AuthorizationState.GETTING_USER;
+        updateStatusPresentationPage2();
+        mGetUserTask.safeExecute(credentials);
+    }
+
 
 
     @Override
@@ -187,65 +229,73 @@ public class ConnectActivity extends Activity {
                 vEdtLogin.setText(data.getStringExtra(AccountManager.KEY_ACCOUNT_NAME));
                 Toast.makeText(this, String.format("Account type - %s", data.getStringExtra(AccountManager.KEY_ACCOUNT_TYPE)), Toast.LENGTH_SHORT).show();
             }
-        } else if (requestCode == REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR && resultCode == RESULT_OK) {
-            //getToken();
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
 
-    private static final String SCOPES = "oauth2:https://www.googleapis.com/auth/drive.readonly";
+    /**
+     * Go to page 3, show user info and propose a user to accept this account.
+     * Show "Decline" button
+     */
+    private void setStateAuthorized(GoogleAccountCredentials credentials) {
+        PreferencesUtils.saveGoogleAccountCredentials(ConnectActivity.this, credentials);
+        mState = AuthorizationState.AUTHORIZED;
+        vFlipper.showNext(3);
+        //TODO Populate obtained user information on this page
+    }
+
+    /**
+     * Go to page 4 which tells user about the failure and propose Accept it or try again
+     * @param error
+     */
+    private void setStateAuthorizationFailed(GoogleAccountCredentials credentials, NetworkErrorDescriptor error) {
+        mState = AuthorizationState.AUTHORIZATION_FAILED;
+        vFlipper.showNext(4);
+        PreferencesUtils.removeGoogleAccountCredentials(this, credentials.getAccountName());
+        //TODO Populate error info
+    }
 
 
-
-    /*private ProgressDialog mPd;
-
-    private void getToken() {
-        String email = vEdtLogin.getText().toString();
-        if (TextUtils.isEmpty(email)) return;
-
-
-        mPd = new ProgressDialog(this);
-        mPd.setIndeterminate(true);
-        mPd.setMessage("Wait!");
-        mPd.setCancelable(false);
-        mPd.show();
-
-        new GetTokenTask(this){
-            @Override
-            protected void onPostExecute(GetTokenTaskResult result) {
-                mPd.dismiss();
-                if (result.getToken() != null) {
-                    Toast.makeText(ConnectActivity.this, result.getToken(), Toast.LENGTH_SHORT).show();
-                } else if (result.getError() instanceof GooglePlayServicesAvailabilityException) {
-                    int statusCode = ((GooglePlayServicesAvailabilityException) result.getError()).getConnectionStatusCode();
-                    GooglePlayServicesUtil.getErrorDialog(statusCode, ConnectActivity.this, REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR).show();
-                } else if (result.getError() instanceof UserRecoverableAuthException) {
-                    Intent intent = ((UserRecoverableAuthException) result.getError()).getIntent();
-                    startActivityForResult(intent, REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR);
-                } else {
-                    Toast.makeText(ConnectActivity.this, result.getError().getMessage(), Toast.LENGTH_SHORT).show();
-                }
-            }
-
-            @Override
-            protected void onCancelled(GetTokenTaskResult getTokenTaskResult) {
-                mPd.dismiss();
-            }
-        }.execute(email, SCOPES);
-    }*/
-
-
+    /**
+     * Shows appropriate status message on page 2 based on the status value,
+     * which can be either GETTING_TOKENS or GETTING_USER
+     */
+    private void updateStatusPresentationPage2() {
+        switch (mState) {
+            case GETTING_TOKENS:
+                //TODO
+                break;
+            case GETTING_USER:
+                //TODO
+                break;
+        }
+    }
 
 
     private void goBackFromAuthorizing() {
         ViewUtils.safelyResetWebView(vWeb);
+        goToTheFirstPage();
+    }
+
+    private void goBackFromPage2() {
+        if (mGetTokenTask != null) {
+            mGetTokenTask.cancel(true);
+            mGetTokenTask = null;
+        }
+        if (mGetUserTask != null) {
+            mGetUserTask.cancel(true);
+            mGetUserTask = null;
+        }
+        goToTheFirstPage();
+    }
+
+    private void goToTheFirstPage() {
         mState = AuthorizationState.PICKING_ACCOUNT;
-        vFlipper.showPrevious();
+        vFlipper.showFirst();
         vEdtLogin.setText(null);
         vEdtLogin.requestFocus();
     }
-
 
 }

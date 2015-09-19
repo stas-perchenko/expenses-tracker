@@ -1,10 +1,10 @@
 package com.alperez.expensestracker.utils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 
 import com.alperez.expensestracker.model.Account;
-import com.alperez.expensestracker.googlelogin.model.GoogleAccountCredentials;
 
 import org.json.JSONException;
 
@@ -15,7 +15,7 @@ import java.text.ParseException;
  */
 public final class PreferencesUtils {
     private static final String KEY_CONNECTED_ACCOUNT = "connected_account";
-    private static final String GOOGLE_ACCOUNT_CREDS_STORAGE_SUFFIX = "_googleAccountsCreds";
+
 
     public static Account loadConnectedAccount(Context context) {
         try {
@@ -31,11 +31,12 @@ public final class PreferencesUtils {
 
     /**
      *
-     * @param context
+     * @param context ???
      * @param acc instance of account to be updated with or to be initially saved.
      * @throws IllegalAccountInstanceException when there is an account already in the preferences and it's being tried
      * to be replaced with somem otfher account
      */
+    @SuppressLint("CommitPrefEdits")
     public static void updateConnectedAccount(Context context, Account acc) {
         SharedPreferences sPrefs = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
         try {
@@ -43,16 +44,17 @@ public final class PreferencesUtils {
             if (savedAcc.getAccountId() != acc.getAccountId()) {
                 throw new IllegalAccountInstanceException(acc, savedAcc.getAccountName(), "Tying to update already saved account with another one");
             }
-        } catch(Exception e){}
+        } catch(Exception e){ e.printStackTrace(); }
         sPrefs.edit().putString(KEY_CONNECTED_ACCOUNT, acc.toJson()).commit();
     }
 
 
     /**
      *
-     * @param context
+     * @param context ???
      * @param acc An instance of the same account which is intended to be deleted from preferences
      */
+    @SuppressLint("CommitPrefEdits")
     public static void removeConnectedAccount(Context context, Account acc) {
         SharedPreferences sPrefs = context.getSharedPreferences(context.getPackageName(), Context.MODE_PRIVATE);
         try {
@@ -60,14 +62,11 @@ public final class PreferencesUtils {
             if (savedAcc.getAccountId() != acc.getAccountId()) {
                 throw new IllegalAccountInstanceException(acc, savedAcc.getAccountName(), "You must provide an instance of the same account you are going to delete");
             }
-        } catch(Exception e){}
+        } catch(Exception e){  e.printStackTrace(); }
         sPrefs.edit().remove(KEY_CONNECTED_ACCOUNT).commit();
     }
 
-    public static void saveGoogleAccountCredentials(Context context, GoogleAccountCredentials credentials) {
-        SharedPreferences sPrefs = context.getSharedPreferences(context.getPackageName()+GOOGLE_ACCOUNT_CREDS_STORAGE_SUFFIX, Context.MODE_PRIVATE);
-        sPrefs.edit().putString(credentials.getAccountName(), credentials.toJson()).commit();
-    }
+
 
 
 
