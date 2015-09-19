@@ -118,17 +118,21 @@ public class GoogleApiTokens {
     public String toJson() {
         validateToken();
         try {
-            JSONObject jObj = new JSONObject();
-            jObj.put("refresh_token", this.refreshToken);
-            jObj.put("access_token", this.accessToken);
-            jObj.put("token_type", this.tokenType);
-            jObj.put("expires_in", this.expiresInSeconds);
-            jObj.put("time_refresh_token_obtained_at", this.timeRefreshTokenObtainedAt);
-            jObj.put("time_access_token_obtained_at", this.timeAccessTokenObtainedAt);
-            return jObj.toString();
+            return toJSONObject().toString();
         } catch(JSONException e) {
             return null;
         }
+    }
+
+    public JSONObject toJSONObject() throws JSONException {
+        JSONObject jObj = new JSONObject();
+        jObj.put("refresh_token", this.refreshToken);
+        jObj.put("access_token", this.accessToken);
+        jObj.put("token_type", this.tokenType);
+        jObj.put("expires_in", this.expiresInSeconds);
+        jObj.put("time_refresh_token_obtained_at", this.timeRefreshTokenObtainedAt);
+        jObj.put("time_access_token_obtained_at", this.timeAccessTokenObtainedAt);
+        return jObj;
     }
 
 

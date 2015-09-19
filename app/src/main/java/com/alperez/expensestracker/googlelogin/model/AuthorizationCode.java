@@ -31,11 +31,19 @@ public class AuthorizationCode {
         this.timeObtainedMillis = jObj.getLong("time");
     }
 
-    public String toJson() throws JSONException {
+    public String toJson() {
+        try {
+            return toJSONObject().toString();
+        } catch(JSONException e) {
+            return null;
+        }
+    }
+
+    public JSONObject toJSONObject() throws JSONException {
         JSONObject jObj = new JSONObject();
         jObj.put("code", code);
         jObj.put("time", timeObtainedMillis);
-        return jObj.toString();
+        return jObj;
     }
 
     public String getCode() {

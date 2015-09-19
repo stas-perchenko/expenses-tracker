@@ -36,7 +36,15 @@ public class GoogleSimplifiedUser {
         }
     }
 
-    public String toJson() throws JSONException {
+    public String toJson() {
+        try {
+            return toJSONObject().toString();
+        } catch(JSONException e) {
+            return null;
+        }
+    }
+
+    public JSONObject toJSONObject() throws JSONException {
         JSONObject jObj = new JSONObject();
         jObj.put("id", id);
         jObj.put("displayName", this.displayName);
@@ -49,9 +57,9 @@ public class GoogleSimplifiedUser {
         }
         jObj.put("url", this.userUrl);
         if (this.name != null) {
-            jObj.put("name", this.name.toJson());
+            jObj.put("name", this.name.toJSONObject());
         }
-        return jObj.toString();
+        return jObj;
     }
 
     public String getId() {
@@ -131,7 +139,7 @@ public class GoogleSimplifiedUser {
 
 
 
-        public JSONObject toJson() throws JSONException {
+        public JSONObject toJSONObject() throws JSONException {
             JSONObject jName = new JSONObject();
             jName.put("formatted", formatted);
             jName.put("familyName", familyName);

@@ -17,6 +17,7 @@ public class GoogleAccountCredentials {
     private String[] scopes;
     private AuthorizationCode authorizationCode;
     private GoogleApiTokens apiTokens;
+    private GoogleSimplifiedUser googleAccountUser;
 
     public GoogleAccountCredentials(String accountName, String oauth2RequestParamsJson, String[] scopes) {
         this.accountName = accountName;
@@ -38,6 +39,7 @@ public class GoogleAccountCredentials {
      *     "scopes": ["scope1", "scope2", "scope3"],
      *     "authorizationCode": "4/nDliL8KdCS68z9YJfVwrco539h9bIBZtz7V3v6ugvcM"     - OPTIONAL
      *     "api_tokens": <JSON representation of the instance of GoogleApiTokens class - OPTIONAL>
+     *     "google_user": <JSON representation of the instance of GoogleSimplifiedUser class - OPTIONAL>
      * }
      * @param jsonCompleteRepresentation
      */
@@ -59,6 +61,15 @@ public class GoogleAccountCredentials {
         } catch(JSONException e){}
 
         if (jObj != null) {
+            JSONObject jAuthCode = jObj.optJSONObject("authorizationCode");
+            if (jAuthCode != null) {
+                try {
+                    this.authorizationCode = new AuthorizationCode(jAuthCode.toString());
+                } catch(JSONException e) {
+                    throw new IllegalArgumentException("AuthorizationCode json can not be parsed");
+                }
+            }
+
             JSONObject jTokens = jObj.optJSONObject("api_tokens");
             if (jTokens != null) {
                 try {
@@ -68,11 +79,10 @@ public class GoogleAccountCredentials {
                 }
             }
 
-
-            JSONObject jAuthCode = jObj.optJSONObject("authorizationCode");
-            if (jAuthCode != null) {
+            JSONObject jGoogeUser = jObj.optJSONObject("google_user");
+            if (jGoogeUser != null) {
                 try {
-                    this.authorizationCode = new AuthorizationCode(jAuthCode.toString());
+                    this.googleAccountUser = new GoogleSimplifiedUser(jGoogeUser);
                 } catch(JSONException e) {
                     throw new IllegalArgumentException("AuthorizationCode json can not be parsed");
                 }
@@ -92,10 +102,15 @@ public class GoogleAccountCredentials {
                 jScopes.put(scope);
             }
             jObj.put("scopes", jScopes);
-            if (this.apiTokens != null) {
-                jObj.put("api_tokens", this.apiTokens.toJson());
+            if (this.authorizationCode != null) {
+                jObj.put("authorizationCode", this.authorizationCode.toJSONObject());
             }
-            jObj.put("authorizationCode", this.authorizationCode);
+            if (this.apiTokens != null) {
+                jObj.put("api_tokens", this.apiTokens.toJSONObject());
+            }
+            if (this.googleAccountUser != null) {
+                jObj.put("google_user", this.googleAccountUser.toJSONObject());
+            }
             return jObj.toString();
         } catch(JSONException e) {
             return null;
@@ -115,7 +130,7 @@ public class GoogleAccountCredentials {
     }
 
     public void setGoogleAccountUser(GoogleSimplifiedUser user) {
-        //TODO
+        this.googleAccountUser = user;
     }
 
     public String getAccountName() {
@@ -136,6 +151,10 @@ public class GoogleAccountCredentials {
 
     public GoogleApiTokens getApiTokens() {
         return apiTokens;
+    }
+
+    public GoogleSimplifiedUser getGoogleAccountUser() {
+        return googleAccountUser;
     }
 
 
