@@ -24,6 +24,7 @@ public class OAuth2RequestParams {
     private String clientSecret;
     private String authUri;
     private String tokenUri;
+    private String peopleUri;
     private String authProviderX509CertUrl;
     private String[] redirectUris;
 
@@ -36,6 +37,7 @@ public class OAuth2RequestParams {
         this.clientSecret = jObj.getString("client_secret");
         this.authUri = jObj.getString("auth_uri");
         this.tokenUri = jObj.getString("token_uri");
+        this.peopleUri = jObj.getString("people_uri");
         this.authProviderX509CertUrl = jObj.getString("auth_provider_x509_cert_url");
         JSONArray jRedir = jObj.getJSONArray("redirect_uris");
         this.redirectUris = new String[jRedir.length()];
@@ -50,6 +52,7 @@ public class OAuth2RequestParams {
         jObj.put("client_secret", this.clientSecret);
         jObj.put("auth_uri", this.authUri);
         jObj.put("token_uri", this.tokenUri);
+        jObj.put("people_uri", this.peopleUri);
         jObj.put("auth_provider_x509_cert_url", this.authProviderX509CertUrl);
         JSONArray jRedir = new JSONArray();
         for (String s : redirectUris) {
@@ -74,6 +77,10 @@ public class OAuth2RequestParams {
 
     public String getTokenUri() {
         return tokenUri;
+    }
+
+    public String getPeopleUri() {
+        return peopleUri;
     }
 
     public String getAuthProviderX509CertUrl() {

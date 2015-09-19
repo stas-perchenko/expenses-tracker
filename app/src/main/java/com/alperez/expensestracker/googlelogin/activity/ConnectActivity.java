@@ -34,6 +34,12 @@ public class ConnectActivity extends Activity {
     private static final int REQUEST_CODE_PICK_ACCOUNT = 101;
     private static final int REQUEST_CODE_RECOVER_FROM_PLAY_SERVICES_ERROR = 102;
 
+    private static final String[] OAUTH2_SCOPES = new String[]{
+            Scopes.DRIVE_FILE,
+            "https://www.googleapis.com/auth/plus.login",
+            "https://www.googleapis.com/auth/plus.me"
+    };
+
     private static final String TAG = "ConnectActivity";
 
 
@@ -90,7 +96,7 @@ public class ConnectActivity extends Activity {
                     if (!TextUtils.isEmpty(email)) {
                         vFlipper.showNext();
 
-                        GoogleAccountCredentials credentials = new GoogleAccountCredentials(email, getResources().getString(R.string.google_oauth2_request_params), new String[]{Scopes.DRIVE_FILE});
+                        GoogleAccountCredentials credentials = new GoogleAccountCredentials(email, getResources().getString(R.string.google_oauth2_request_params), OAUTH2_SCOPES);
                         PreferencesUtils.saveGoogleAccountCredentials(ConnectActivity.this, credentials);
                         Uri authUri = GoogleOAuth2AuthorizationHelper.buildAuthorizationUrl(credentials);
                         mWebClient.setAccountCredentials(credentials);

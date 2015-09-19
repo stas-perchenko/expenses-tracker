@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.alperez.expensestracker.googlelogin.model.GoogleAccountCredentials;
 import com.alperez.expensestracker.googlelogin.model.GoogleApiTokens;
+import com.alperez.expensestracker.googlelogin.model.GoogleSimplifiedUser;
 import com.alperez.expensestracker.network.Network;
 import com.alperez.expensestracker.network.NetworkErrorDescriptor;
 import com.alperez.expensestracker.network.NetworkRequest;
@@ -136,4 +137,7 @@ public class OAuthApis {
             }
         }
     }
+
+
+    
 }
