@@ -33,7 +33,13 @@ public class LauncherActivity extends Activity {
 
         if (needConnectionActfivity) {
             startActivity(new Intent(this, ConnectActivity.class));
-            finish();
+            //TODO
+            //NO!!! cach onActivityResult
+            // Then perform initialization process here.
+            // Then start MainActivity
+
+
+            //finish();
             return;
         }
 
