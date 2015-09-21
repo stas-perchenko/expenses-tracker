@@ -40,8 +40,8 @@ public class ConnectActivity extends Activity {
 
     private static final String[] OAUTH2_SCOPES = new String[]{
             Scopes.DRIVE_FILE,
-            "https://www.googleapis.com/auth/plus.login",
-            "https://www.googleapis.com/auth/plus.me"
+            //Scopes.PLUS_LOGIN,
+            Scopes.PLUS_ME
     };
 
     private static final String TAG = "ConnectActivity";

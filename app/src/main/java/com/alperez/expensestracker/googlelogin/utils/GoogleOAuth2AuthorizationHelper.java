@@ -12,6 +12,8 @@ public class GoogleOAuth2AuthorizationHelper {
     public static final String AUTH_URL_PARAM_REDIRECT_URI = "redirect_uri";
     public static final String AUTH_URL_PARAM_SCOPE = "scope";
     public static final String AUTH_URL_PARAM_EMAIL = "login_hint";
+    public static final String AUTH_URL_PARAM_APPROVAL_PROMPT = "approval_prompt";
+    public static final String AUTH_URL_PARAM_ACCESS_TYPE = "access_type";
 
 
     public static Uri buildAuthorizationUrl(GoogleAccountCredentials account) {
@@ -31,12 +33,16 @@ public class GoogleOAuth2AuthorizationHelper {
 
         StringBuilder scope = new StringBuilder();
         for (String scp : account.getScopes()) {
-            if (scope.length() > 0) scope.append('+');
+            if (scope.length() > 0) scope.append(' ');
             scope.append(scp);
         }
         builder.appendQueryParameter(AUTH_URL_PARAM_SCOPE, scope.toString());
 
         builder.appendQueryParameter(AUTH_URL_PARAM_EMAIL, account.getAccountName());
+
+        builder.appendQueryParameter(AUTH_URL_PARAM_APPROVAL_PROMPT, "force");
+
+        builder.appendQueryParameter(AUTH_URL_PARAM_ACCESS_TYPE, "offline");
 
         return builder.build();
     }

@@ -11,15 +11,17 @@
         <activity
             android:name=".activity.LauncherActivity"
             android:screenOrientation="portrait">
+
+        </activity>
+
+        <activity android:name=".googlelogin.activity.ConnectActivity"
+            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
-        <activity android:name=".googlelogin.activity.ConnectActivity"
-            android:theme="@android:style/Theme.Holo.Light.NoActionBar.Fullscreen" />
 
     </application>
 

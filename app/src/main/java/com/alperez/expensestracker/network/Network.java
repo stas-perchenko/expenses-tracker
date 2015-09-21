@@ -3,6 +3,7 @@ package com.alperez.expensestracker.network;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.text.TextUtils;
 
 import java.io.BufferedOutputStream;
@@ -22,7 +23,7 @@ import java.util.Map;
 public class Network {
 
     public static NetworkResponse doRequest(NetworkRequest request) throws IOException {
-        URL preparedURL = new URL(appendParamsToUrl(request.getUrl(), request.getParams()));
+        URL preparedURL = new URL(buildUri(request.getUrl(), request.getParams()).toString());
         HttpURLConnection connection = (HttpURLConnection) preparedURL.openConnection();
         connection.setConnectTimeout(request.getTimeOut());
         connection.setDoInput(true);
@@ -47,13 +48,14 @@ public class Network {
         }
         if ((method == NetworkRequest.Method.POST || method == NetworkRequest.Method.PUT)) {
             if (request.getData() != null && request.getData().length != 0) {
+                connection.addRequestProperty("Content-length", Integer.toString(request.getData().length));
                 connection.setDoOutput(true);
                 BufferedOutputStream outputStream = new BufferedOutputStream(connection.getOutputStream());
                 outputStream.write(request.getData());
                 outputStream.flush();
                 outputStream.close();
             } else {
-                connection.addRequestProperty("Content-Length", "0");   //Required by android 2
+                connection.addRequestProperty("Content-length", "0");   //Required by android 2
             }
         }
         return new NetworkResponse(connection);
@@ -64,6 +66,28 @@ public class Network {
         return (info != null) && (includeConnectingStage ? info.isConnectedOrConnecting() : info.isConnected());
     }
 
+
+
+    private static Uri buildUri(String host, Map<String, String> params) {
+        Uri.Builder builder = Uri.parse(host).buildUpon();
+        for (String key : params.keySet()) {
+            builder.appendQueryParameter(key, params.get(key));
+        }
+        return builder.build();
+    }
+
+    public static String getParamsAsEncodedData(Map<String, String> params) {
+        if (params == null || params.size() == 0) return "";
+
+        StringBuilder sb = new StringBuilder();
+        for (String key : params.keySet()) {
+            if (sb.length() > 0) sb.append('&');
+            sb.append(encodeString(key, "utf-8"));
+            sb.append('=');
+            sb.append(encodeString(params.get(key), "utf-8"));
+        }
+        return sb.toString();
+    }
 
     public static String appendParamsToUrl(String baseUrl, Map<String, String> params) {
         if (params == null || params.size() == 0) return baseUrl;

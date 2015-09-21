@@ -51,16 +51,18 @@ public class OAuthApis {
         synchronized (lockerGetAllNewTokensForGoogleAccount) {
             Map<String, String> headers = new HashMap<>();
             headers.put("content-type", "application/x-www-form-urlencoded");
-            headers.put("user-agent", "expensestracker-1066");
+            //headers.put("user-agent", "expensestracker-1066");
+            headers.put("user-agent", "google-oauth-playground");
+
 
             Map<String, String> params = new HashMap<>();
             params.put("code", accountCreds.getAuthorizationCode().getCode());
             params.put("client_id", accountCreds.getOauth2RequestParams().getClientId());
-            params.put("client_secret", accountCreds.getOauth2RequestParams().getClientSecret());
+            //params.put("client_secret", accountCreds.getOauth2RequestParams().getClientSecret());
             params.put("redirect_uri", accountCreds.getOauth2RequestParams().getLocalRedirectUri());
             params.put("grant_type", "authorization_code");
-
             NetworkRequest nr = new NetworkRequest(accountCreds.getOauth2RequestParams().getTokenUri(), params, NetworkRequest.Method.POST, headers);
+            nr.setData(Network.getParamsAsEncodedData(params));
             try {
                 //----  Mating the request  ----
                 NetworkResponse nResp = Network.doRequest(nr);
