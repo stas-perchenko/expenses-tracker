@@ -65,6 +65,11 @@ public class NetworkRequest {
         return mUri;
     }
 
+    public int addHeader(String name, String value) {
+        this.headers.put(name, value);
+        return this.headers.size();
+    }
+
     public void setData(String data) {
         try {
             setData(data.getBytes("utf-8"));

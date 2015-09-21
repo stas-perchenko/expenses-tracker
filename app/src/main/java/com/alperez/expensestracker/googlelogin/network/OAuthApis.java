@@ -6,6 +6,7 @@ import android.util.Log;
 import com.alperez.expensestracker.googlelogin.model.GoogleAccountCredentials;
 import com.alperez.expensestracker.googlelogin.model.GoogleApiTokens;
 import com.alperez.expensestracker.googlelogin.model.GoogleSimplifiedUser;
+import com.alperez.expensestracker.googlelogin.utils.GoogleOAuth2AuthorizationHelper;
 import com.alperez.expensestracker.network.Network;
 import com.alperez.expensestracker.network.NetworkErrorDescriptor;
 import com.alperez.expensestracker.network.NetworkRequest;
@@ -154,7 +155,8 @@ public class OAuthApis {
             err.error = "not authorized";
             err.errorDescription = "You must get access token before calling PEOPLE API";
             return err;
-        } else if ((accountCreds.getApiTokens().getTimeAccessTokenObtainedAt() + accountCreds.getApiTokens().getExpiresInSeconds()*1000 - 250) > System.currentTimeMillis()) {
+        } else if ((accountCreds.getApiTokens().getTimeAccessTokenObtainedAt() + accountCreds.getApiTokens().getExpiresInSeconds()*1000 - 250) < System.currentTimeMillis()) {
+            //TODO move expiration check to the helper
             err = new NetworkErrorDescriptor(null);
             err.error = "expired";
             err.errorDescription = "Your access token has been expired";
@@ -162,10 +164,10 @@ public class OAuthApis {
         if (err != null) return err;
 
         synchronized (lockerGetGoogleAccountUser) {
-            NetworkRequest nr = new NetworkRequest(accountCreds.getOauth2RequestParams().getPeopleUri(), new HashMap<String, String>(), NetworkRequest.Method.GET, new HashMap<String, String>());
+            NetworkRequest nr = new NetworkRequest(accountCreds.getOauth2RequestParams().getPeopleUri(), new HashMap<String, String>(), NetworkRequest.Method.GET, null);
             try {
                 //----  Mating the request  ----
-                NetworkResponse nResp = Network.doRequest(nr);
+                NetworkResponse nResp = Network.doRequest(GoogleOAuth2AuthorizationHelper.addAccessTokenHeaderToRequest(nr, accountCreds.getApiTokens()));
 
                 //----  Getting response data  ----
                 int respCode = nResp.getResponseCode();

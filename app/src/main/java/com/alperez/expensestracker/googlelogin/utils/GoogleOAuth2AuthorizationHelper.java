@@ -3,6 +3,8 @@ package com.alperez.expensestracker.googlelogin.utils;
 import android.net.Uri;
 
 import com.alperez.expensestracker.googlelogin.model.GoogleAccountCredentials;
+import com.alperez.expensestracker.googlelogin.model.GoogleApiTokens;
+import com.alperez.expensestracker.network.NetworkRequest;
 
 /**
  * Created by stanislav.perchenko on 15-Sep-15.
@@ -45,6 +47,15 @@ public class GoogleOAuth2AuthorizationHelper {
         builder.appendQueryParameter(AUTH_URL_PARAM_ACCESS_TYPE, "offline");
 
         return builder.build();
+    }
+
+
+    public static NetworkRequest addAccessTokenHeaderToRequest(NetworkRequest request, GoogleApiTokens tokens) {
+        if (request != null || tokens != null) {
+            //TODO Check if expired (throw an exception)
+            request.addHeader("Authorization", String.format("Bearer %s", tokens.getAccessToken()));
+        }
+        return request;
     }
 
 }
