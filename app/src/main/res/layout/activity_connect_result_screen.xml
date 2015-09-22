@@ -14,7 +14,7 @@
         android:layout_height="0dp"
         android:layout_weight="25" />
 
-    <ImageView
+    <ImageView android:id="@+id/txt_result_account_image"
         android:layout_width="@dimen/login_account_image"
         android:layout_height="@dimen/login_account_image"
         android:layout_weight="0"

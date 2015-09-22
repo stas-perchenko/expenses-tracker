@@ -14,6 +14,7 @@ import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -59,6 +60,7 @@ public class ConnectActivity extends Activity {
     private TextView vTxtProcessingStage;
 
     private AuthorizationState mState = AuthorizationState.PICKING_ACCOUNT;
+    private GoogleAccountCredentials mFinalAccountCredentials;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -246,9 +248,26 @@ public class ConnectActivity extends Activity {
      */
     private void setStateAuthorized(GoogleAccountCredentials credentials) {
         PreferencesUtils.saveGoogleAccountCredentials(ConnectActivity.this, credentials);
+        mFinalAccountCredentials = credentials;
         mState = AuthorizationState.AUTHORIZED;
         vFlipper.showNext(3);
-        //TODO Populate obtained user information on this page
+
+        ImageView vImage = (ImageView) findViewById(R.id.txt_result_account_image);
+        //TODO Set image picture
+
+        ((TextView) findViewById(R.id.txt_result_account)).setText(credentials.getAccountName());
+        findViewById(R.id.btn_result_accept).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ConnectActivity.this.finish();
+            }
+        });
+        findViewById(R.id.btn_result_another).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToTheFirstPage();
+            }
+        });
     }
 
     /**
@@ -291,6 +310,7 @@ public class ConnectActivity extends Activity {
     public void finish() {
 
         //TODO Provide result for this activity according to the current state
+        //Take credentials from GoogleAccountCredentials
 
         super.finish();
     }
@@ -330,6 +350,7 @@ public class ConnectActivity extends Activity {
 
     private void goToTheFirstPage() {
         mState = AuthorizationState.PICKING_ACCOUNT;
+        mFinalAccountCredentials = null;
         vFlipper.showFirst();
         vEdtLogin.setText(null);
         vEdtLogin.requestFocus();
