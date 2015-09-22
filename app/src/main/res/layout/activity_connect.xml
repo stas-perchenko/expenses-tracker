@@ -58,9 +58,15 @@
         android:layout_height="match_parent"/>
 
     <!-- 2 Processing screen for getting Access tokens and downloading/initializing DB -->
-    <FrameLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:background="@color/bg_main" >
+
+        <include layout="@layout/activity_connect_processing_screen"/>
+
+    </LinearLayout>
 
     <!-- 3 Result OK scren -->
     <LinearLayout
@@ -73,24 +79,28 @@
         android:paddingRight="@dimen/general_screen_side_padding"
         android:background="@color/general_blue_light" >
 
-        <include layout="@layout/activity_connect_result_screen"/>
+        <include layout="@layout/activity_connect_result_screen" />
 
     </LinearLayout>
 
     <!-- 4 Result Error scren -->
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:paddingTop="@dimen/general_screen_vert_padding"
-        android:paddingBottom="@dimen/general_screen_vert_padding"
-        android:paddingLeft="@dimen/general_screen_side_padding"
-        android:paddingRight="@dimen/general_screen_side_padding"
-        android:background="@color/bg_main" >
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingTop="@dimen/general_screen_vert_padding"
+            android:paddingBottom="@dimen/general_screen_vert_padding"
+            android:paddingLeft="@dimen/general_screen_side_padding"
+            android:paddingRight="@dimen/general_screen_side_padding"
+            android:background="@color/bg_main" >
 
-        <include layout="@layout/activity_connect_error_screen"/>
+            <include layout="@layout/activity_connect_error_screen"/>
 
-    </LinearLayout>
+        </LinearLayout>
+    </ScrollView>
 
 </com.alperez.expensestracker.widget.SlidingViewFlipper>
 

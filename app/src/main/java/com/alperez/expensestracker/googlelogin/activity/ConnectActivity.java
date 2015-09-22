@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.text.Html;
 import android.text.TextUtils;
 import android.view.View;
 import android.webkit.CookieManager;
@@ -13,6 +14,7 @@ import android.webkit.CookieSyncManager;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alperez.expensestracker.R;
@@ -54,6 +56,8 @@ public class ConnectActivity extends Activity {
 
     private WebView vWeb;
 
+    private TextView vTxtProcessingStage;
+
     private AuthorizationState mState = AuthorizationState.PICKING_ACCOUNT;
 
     @Override
@@ -64,6 +68,7 @@ public class ConnectActivity extends Activity {
         vEdtLogin = (EditText) findViewById(R.id.login);
         vBtnSignIn = (Button) findViewById(R.id.sign_in);
         vWeb = (WebView) findViewById(R.id.web_view);
+        vTxtProcessingStage = (TextView) findViewById(R.id.txt_processing_stage);
 
         vWeb.getSettings().setJavaScriptEnabled(true);
         vWeb.setWebViewClient(mWebClient);
@@ -254,9 +259,41 @@ public class ConnectActivity extends Activity {
         mState = AuthorizationState.AUTHORIZATION_FAILED;
         vFlipper.showNext(4);
         PreferencesUtils.removeGoogleAccountCredentials(this, credentials.getAccountName());
-        //TODO Populate error info
+        ((TextView) findViewById(R.id.txt_error_account)).setText(credentials.getAccountName());
+        ((TextView) findViewById(R.id.txt_error_code)).setText(error.error);
+        ((TextView) findViewById(R.id.txt_error_description)).setText(error.errorDescription);
+        TextView vTxtRequest = (TextView) findViewById(R.id.txt_error_request);
+        if (error.getNetworkRequest() != null) {
+            vTxtRequest.setVisibility(View.VISIBLE);
+            String escapedUri = TextUtils.htmlEncode(error.getNetworkRequest().getUriForRequest().toString());
+            String text = String.format(getResources().getString(R.string.error_screen_request), escapedUri);
+            vTxtRequest.setText(Html.fromHtml(text));
+        } else {
+            vTxtRequest.setVisibility(View.GONE);
+        }
+
+        findViewById(R.id.btn_error_try_again).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ConnectActivity.this.finish();
+            }
+        });
+        findViewById(R.id.btn_error_exit).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToTheFirstPage();
+            }
+        });
     }
 
+
+    @Override
+    public void finish() {
+
+        //TODO Provide result for this activity according to the current state
+
+        super.finish();
+    }
 
     /**
      * Shows appropriate status message on page 2 based on the status value,
@@ -265,10 +302,10 @@ public class ConnectActivity extends Activity {
     private void updateStatusPresentationPage2() {
         switch (mState) {
             case GETTING_TOKENS:
-                //TODO
+                vTxtProcessingStage.setText(getString(R.string.processing_screen_getting_tokens));
                 break;
             case GETTING_USER:
-                //TODO
+                vTxtProcessingStage.setText(getString(R.string.processing_screen_getting_user));
                 break;
         }
     }

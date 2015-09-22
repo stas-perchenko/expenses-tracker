@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <ProgressBar
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:paddingLeft="@dimen/general_screen_side_padding"
+        android:paddingRight="@dimen/general_screen_side_padding"
+        android:layout_gravity="center_horizontal"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:text="@string/processing_screen_title"/>
+
+    <TextView android:id="@+id/txt_processing_stage"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0"
+        android:layout_marginTop="16dp"
+        android:paddingLeft="@dimen/general_screen_side_padding"
+        android:paddingRight="@dimen/general_screen_side_padding"
+        android:layout_gravity="center_horizontal"
+        android:textSize="15sp"
+        android:textColor="@color/custom_buttons_text_disabled"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1" />
+</merge>

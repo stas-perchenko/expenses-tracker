@@ -20,9 +20,14 @@
 	<string name="authorization_access_denied">You must grant the application access to your Google Drive account</string>
 	<string name="authorization_access_described">Authorization failed (error description: \"%s\")</string>
 
-	<string name="error_screen_title">An error account during authorization</string>
+	<string name="processing_screen_title">Completing authorization</string>
+	<string name="processing_screen_getting_tokens">Getting access keys...</string>
+	<string name="processing_screen_getting_user">Getting user account information...</string>
+
+	<string name="error_screen_title">An error account during authorization with account</string>
 	<string name="error_screen_code">Code:</string>
 	<string name="error_screen_description">Description:</string>
+	<string name="error_screen_request">&lt;b>HTML request:&lt;/b> &lt;font color=&quot;FFFFFF&quot;&gt;%1$s&lt;/font&gt;</string>
 	<string name="error_screen_btn_again">Try again</string>
 	<string name="error_screen_btn_exit">Exit</string>
 
