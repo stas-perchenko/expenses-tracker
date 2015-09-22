@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bg_main">#EFEFEF</color>
+
+    <color name="general_red">#E81A1A</color>
+    <color name="general_red_bright">#FF2424</color>
+
+    <color name="general_blue_light">#87C9F5</color>
+    <color name="general_blue">#1FC7FF</color>
+    <color name="general_blue_dark">#0099FF</color>
+
+    <color name="custom_buttons_text_light">#FFFFFF</color>
+    <color name="custom_buttons_text_disabled">#8A8A8A</color>
+    <color name="custom_buttons_bg_disabled">#B0B0B0</color>
+</resources>

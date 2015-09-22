@@ -9,7 +9,7 @@
     custom:decrementInAnimation="@anim/fly_from_left"
     custom:decrementOutAnimation="@anim/fly_to_right">
 
-    <!-- Select account screen -->
+    <!-- 0 Select account screen -->
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
@@ -52,15 +52,45 @@
             android:layout_weight="40"/>
     </LinearLayout>
 
-    <!-- Authorizing screen -->
+    <!-- 1 Authorizing screen -->
     <WebView android:id="@+id/web_view"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <!-- Processing screen for getting Access tokens and downloading/initializing DB -->
+    <!-- 2 Processing screen for getting Access tokens and downloading/initializing DB -->
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
+
+    <!-- 3 Result OK scren -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/general_screen_vert_padding"
+        android:paddingBottom="@dimen/general_screen_vert_padding"
+        android:paddingLeft="@dimen/general_screen_side_padding"
+        android:paddingRight="@dimen/general_screen_side_padding"
+        android:background="@color/general_blue_light" >
+
+        <include layout="@layout/activity_connect_result_screen"/>
+
+    </LinearLayout>
+
+    <!-- 4 Result Error scren -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:paddingTop="@dimen/general_screen_vert_padding"
+        android:paddingBottom="@dimen/general_screen_vert_padding"
+        android:paddingLeft="@dimen/general_screen_side_padding"
+        android:paddingRight="@dimen/general_screen_side_padding"
+        android:background="@color/bg_main" >
+
+        <include layout="@layout/activity_connect_error_screen"/>
+
+    </LinearLayout>
 
 </com.alperez.expensestracker.widget.SlidingViewFlipper>
 

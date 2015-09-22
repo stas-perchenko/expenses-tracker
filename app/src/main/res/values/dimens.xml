@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="general_screen_side_padding">8dp</dimen>
+    <dimen name="general_screen_vert_padding">8dp</dimen>
+
+    <dimen name="login_account_image">72dp</dimen>
+</resources>
