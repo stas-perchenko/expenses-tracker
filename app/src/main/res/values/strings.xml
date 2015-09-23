@@ -27,12 +27,14 @@
 	<string name="error_screen_title">An error account during authorization with account</string>
 	<string name="error_screen_code">Code:</string>
 	<string name="error_screen_description">Description:</string>
-	<string name="error_screen_request">&lt;b>HTML request:&lt;/b> &lt;font color=&quot;FFFFFF&quot;&gt;%1$s&lt;/font&gt;</string>
+	<string name="error_screen_request">&lt;b&gt;HTML request:&lt;/b&gt; &lt;font color=&quot;#7046F0&quot;&gt;%1$s&lt;/font&gt;</string>
 	<string name="error_screen_btn_again">Try again</string>
 	<string name="error_screen_btn_exit">Exit</string>
 
 	<string name="ok_screen_title">You have successfully authorized with google account</string>
 	<string name="ok_screen_btn_accept">Accept and continue</string>
 	<string name="ok_screen_btn_another">Try another</string>
+	<string name="ok_screen_revoke_dlg_title">Revokation</string>
+	<string name="ok_screen_revoke_dlg_message">Authorization for the &lt;font color=&quot;#68B4F7&quot;&gt;&lt;b&gt;%1$s&lt;/b&gt;&lt;/font&gt; will be reverted, all access keys will be revoken.\nAre you sure?</string>
 
 </resources>

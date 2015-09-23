@@ -2,6 +2,8 @@ package com.alperez.expensestracker.googlelogin.activity;
 
 import android.accounts.AccountManager;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Build;
@@ -137,6 +139,13 @@ public class ConnectActivity extends Activity {
                 goBackFromPage2();
                 break;
             case AUTHORIZED:
+                String message = String.format(getResources().getString(R.string.ok_screen_revoke_dlg_message), TextUtils.htmlEncode(mFinalAccountCredentials.getAccountName()));
+                new AlertDialog.Builder(this).setIcon(android.R.drawable.ic_dialog_alert).setCancelable(true).setTitle(R.string.ok_screen_revoke_dlg_title).setMessage(Html.fromHtml(message)).setNegativeButton(android.R.string.no, null).setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        goToTheFirstPage();
+                    }
+                });
             case AUTHORIZATION_FAILED:
                 goToTheFirstPage();
                 break;
@@ -284,7 +293,7 @@ public class ConnectActivity extends Activity {
         TextView vTxtRequest = (TextView) findViewById(R.id.txt_error_request);
         if (error.getNetworkRequest() != null) {
             vTxtRequest.setVisibility(View.VISIBLE);
-            String escapedUri = TextUtils.htmlEncode(error.getNetworkRequest().getUriForRequest().toString());
+            String escapedUri = TextUtils.htmlEncode(error.getNetworkRequest().getUriForRequest().toString());gdfg;
             String text = String.format(getResources().getString(R.string.error_screen_request), escapedUri);
             vTxtRequest.setText(Html.fromHtml(text));
         } else {
