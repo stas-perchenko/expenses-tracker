@@ -50,9 +50,13 @@ public class GoogleOAuth2AuthorizationHelper {
     }
 
 
-    public static NetworkRequest addAccessTokenHeaderToRequest(NetworkRequest request, GoogleApiTokens tokens) {
+    public static NetworkRequest addAccessTokenHeaderToRequest(NetworkRequest request, GoogleApiTokens tokens) throws AccessTokenExpiresException {
         if (request != null || tokens != null) {
-            //TODO Check if expired (throw an exception)
+            long expTime = tokens.getTimeAccessTokenObtainedAt() + tokens.getExpiresInSeconds()*1000;
+            long curTime = System.currentTimeMillis();
+            if ((expTime - 250) < curTime) {
+                throw new AccessTokenExpiresException(expTime, curTime);
+            }
             request.addHeader("Authorization", String.format("Bearer %s", tokens.getAccessToken()));
         }
         return request;

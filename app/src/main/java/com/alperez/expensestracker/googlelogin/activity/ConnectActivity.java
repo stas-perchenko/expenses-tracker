@@ -293,7 +293,7 @@ public class ConnectActivity extends Activity {
         TextView vTxtRequest = (TextView) findViewById(R.id.txt_error_request);
         if (error.getNetworkRequest() != null) {
             vTxtRequest.setVisibility(View.VISIBLE);
-            String escapedUri = TextUtils.htmlEncode(error.getNetworkRequest().getUriForRequest().toString());gdfg;
+            String escapedUri = TextUtils.htmlEncode(error.getNetworkRequest().getUriForRequest().toString());
             String text = String.format(getResources().getString(R.string.error_screen_request), escapedUri);
             vTxtRequest.setText(Html.fromHtml(text));
         } else {

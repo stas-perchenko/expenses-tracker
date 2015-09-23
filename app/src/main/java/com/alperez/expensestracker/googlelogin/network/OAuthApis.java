@@ -6,6 +6,7 @@ import android.util.Log;
 import com.alperez.expensestracker.googlelogin.model.GoogleAccountCredentials;
 import com.alperez.expensestracker.googlelogin.model.GoogleApiTokens;
 import com.alperez.expensestracker.googlelogin.model.GoogleSimplifiedUser;
+import com.alperez.expensestracker.googlelogin.utils.AccessTokenExpiresException;
 import com.alperez.expensestracker.googlelogin.utils.GoogleOAuth2AuthorizationHelper;
 import com.alperez.expensestracker.network.Network;
 import com.alperez.expensestracker.network.NetworkErrorDescriptor;
@@ -155,13 +156,7 @@ public class OAuthApis {
             err.error = "not authorized";
             err.errorDescription = "You must get access token before calling PEOPLE API";
             return err;
-        } else if ((accountCreds.getApiTokens().getTimeAccessTokenObtainedAt() + accountCreds.getApiTokens().getExpiresInSeconds()*1000 - 250) < System.currentTimeMillis()) {
-            //TODO move expiration check to the helper
-            err = new NetworkErrorDescriptor(null);
-            err.error = "expired";
-            err.errorDescription = "Your access token has been expired";
         }
-        if (err != null) return err;
 
         synchronized (lockerGetGoogleAccountUser) {
             NetworkRequest nr = new NetworkRequest(accountCreds.getOauth2RequestParams().getPeopleUri(), new HashMap<String, String>(), NetworkRequest.Method.GET, null);
@@ -223,6 +218,14 @@ public class OAuthApis {
                 err = new NetworkErrorDescriptor(nr);
                 err.error = "IOException: " +e.getMessage();
                 err.errorDescription = e.toString();
+                return err;
+            } catch (AccessTokenExpiresException e) {
+                Log.e(TAG, e.getMessage());
+                e.printStackTrace();
+
+                err = new NetworkErrorDescriptor(nr);
+                err.error = e.getClass().getSimpleName();
+                err.errorDescription = e.getMessage();
                 return err;
             }
         }
