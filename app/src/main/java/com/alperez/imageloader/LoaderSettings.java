@@ -17,6 +17,10 @@ public final class LoaderSettings {
     private boolean ramCacheEnabled;
     private int ramCacheSize;
 
+    private LoaderSettings(){
+        // Only factory-initialization allowed
+    }
+
     public Bitmap getDefaultPlaceholder() {
         return defaultPlaceholder;
     }
@@ -44,7 +48,7 @@ public final class LoaderSettings {
     /**
      * Factory builder class for settings
      */
-    public class Builder {
+    public static class Builder {
         private LoaderSettings instance;
 
         public Builder() {
