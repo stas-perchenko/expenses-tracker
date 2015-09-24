@@ -1,4 +1,4 @@
-package com.alperez.imageloader;
+package com.alperez.imageloader.helpers;
 
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;

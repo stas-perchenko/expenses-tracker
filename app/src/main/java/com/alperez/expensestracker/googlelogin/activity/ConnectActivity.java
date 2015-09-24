@@ -3,8 +3,11 @@ package com.alperez.expensestracker.googlelogin.activity;
 import android.accounts.AccountManager;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -21,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alperez.expensestracker.R;
+import com.alperez.expensestracker.activity.MyApplication;
 import com.alperez.expensestracker.googlelogin.model.AuthorizationCode;
 import com.alperez.expensestracker.googlelogin.model.AuthorizationState;
 import com.alperez.expensestracker.googlelogin.model.GoogleAccountCredentials;
@@ -31,6 +35,7 @@ import com.alperez.expensestracker.googlelogin.utils.GoogleOAuth2AuthorizationHe
 import com.alperez.expensestracker.googlelogin.utils.PreferencesUtils;
 import com.alperez.expensestracker.googlelogin.utils.ViewUtils;
 import com.alperez.expensestracker.network.NetworkErrorDescriptor;
+import com.alperez.expensestracker.utils.AsyncTaskCompat;
 import com.alperez.expensestracker.widget.SlidingViewFlipper;
 import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.Scopes;
@@ -63,6 +68,7 @@ public class ConnectActivity extends Activity {
 
     private AuthorizationState mState = AuthorizationState.PICKING_ACCOUNT;
     private GoogleAccountCredentials mFinalAccountCredentials;
+    private Bitmap mDefaultUserAccountImage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,6 +128,18 @@ public class ConnectActivity extends Activity {
             }
         });
 
+
+        new AsyncTaskCompat<Context, Void, Bitmap>() {
+            @Override
+            protected Bitmap doInBackground(Context... params) {
+                return BitmapFactory.decodeResource(params[0].getResources(), R.drawable.default_account_image);
+            }
+
+            @Override
+            protected void onPostExecute(Bitmap bitmap) {
+                mDefaultUserAccountImage = bitmap;
+            }
+        }.safeExecute(this);
     }
 
     @Override
@@ -262,7 +280,7 @@ public class ConnectActivity extends Activity {
         vFlipper.showNext(3);
 
         ImageView vImage = (ImageView) findViewById(R.id.txt_result_account_image);
-        //TODO Set image picture
+        MyApplication.getImageLoader().loadImage(vImage, credentials.getGoogleAccountUser().getImageUrl(), mDefaultUserAccountImage, null);
 
         ((TextView) findViewById(R.id.txt_result_account)).setText(credentials.getAccountName());
         findViewById(R.id.btn_result_accept).setOnClickListener(new View.OnClickListener() {

@@ -6,8 +6,8 @@ import android.content.Context;
 import com.alperez.expensestracker.utils.ExternalMediaException;
 import com.alperez.expensestracker.utils.FileUtils;
 import com.alperez.imageloader.ImageLoader;
-import com.alperez.imageloader.ImageRAMCache;
-import com.alperez.imageloader.LoaderSettings;
+import com.alperez.imageloader.helpers.ImageRAMCache;
+import com.alperez.imageloader.helpers.LoaderSettings;
 
 /**
  * Created by stanislav.perchenko on 24-Sep-15.
