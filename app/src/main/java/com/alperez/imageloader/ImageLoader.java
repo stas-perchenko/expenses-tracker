@@ -6,7 +6,6 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
@@ -28,6 +27,9 @@ import java.lang.ref.WeakReference;
  * Created by stanislav.perchenko on 24-Sep-15.
  */
 public final class ImageLoader {
+
+    private static final String TAG = "Imageloader";
+    //TODO implement setter for debug mode which will enable logging.
 
     private Context mContext;
     private LoaderSettings mSettings;
@@ -88,13 +90,14 @@ public final class ImageLoader {
         if (bitmap != null) {
             setBitmapWithOverlayImmediately(v, bitmap, getActualOverlay(overlay));
         } else if(checkForCurrentWork(v, link)) {
-            final BitmapWorkerTask task = new BitmapWorkerTask(link, v, scaleTo, finalPlaceholder, finalOverlay);
+            /*final BitmapWorkerTask task = new BitmapWorkerTask(link, v, scaleTo, finalPlaceholder, finalOverlay);
             final AsyncDrawable adr = new AsyncDrawable(mContext.getResources(), finalPlaceholder, task);
 
             // NOTE: This uses a custom version of AsyncTask that has been pulled from the
             // framework and slightly modified. Refer to the docs at the top of the class
             // for more info on what was changed.
-            task.executeOnExecutor(BitmapWorkerTask.DUAL_THREAD_EXECUTOR);
+            task.executeOnExecutor(BitmapWorkerTask.DUAL_THREAD_EXECUTOR);*/
+            //TODO Start task
         }
     }
 

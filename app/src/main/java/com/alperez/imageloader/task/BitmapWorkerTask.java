@@ -21,6 +21,8 @@ import java.lang.ref.WeakReference;
  * Created by stanislav.perchenko on 29-Sep-15.
  */
 public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Result> {
+    private static final String TAG = "BitmapWorkerTask";
+
     private final String link;
     private final Size scaleToSize;
     private WeakReference<ImageView> imageViewReference;
@@ -61,7 +63,8 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Res
             return null;
         }
 
-        Result result = new Result
+
+        Result result = new Result();
         Bitmap bitmap = ImageROMCache.decodeBitmapFromROMCache(link, scaleToSize);
 
         if (bitmap != null) {
@@ -106,10 +109,17 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Res
         }
 
         // Load content from the network
-        //TODO call to ROM cache there.
-        byte[] rawData = processBitmap(data);
+        //TODO call to ROM cache for caching after this there.
+        //TODO use external processor if available
+        //byte[] rawData = processBitmap(data);
 
 
+        return null;
+    }
+
+
+    private View getAttachedImageView() {
+        //TODO implement this
         return null;
     }
 
