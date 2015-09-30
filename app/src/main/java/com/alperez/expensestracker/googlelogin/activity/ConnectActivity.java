@@ -24,6 +24,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.alperez.expensestracker.R;
+import com.alperez.expensestracker.activity.MyApplication;
 import com.alperez.expensestracker.googlelogin.model.AuthorizationCode;
 import com.alperez.expensestracker.googlelogin.model.AuthorizationState;
 import com.alperez.expensestracker.googlelogin.model.GoogleAccountCredentials;
@@ -36,6 +37,7 @@ import com.alperez.expensestracker.googlelogin.utils.ViewUtils;
 import com.alperez.expensestracker.network.NetworkErrorDescriptor;
 import com.alperez.expensestracker.utils.AsyncTaskCompat;
 import com.alperez.expensestracker.widget.SlidingViewFlipper;
+import com.alperez.imageloader.helpers.Size;
 import com.google.android.gms.common.AccountPicker;
 import com.google.android.gms.common.Scopes;
 
@@ -279,8 +281,7 @@ public class ConnectActivity extends Activity {
         vFlipper.showNext(3);
 
         ImageView vImage = (ImageView) findViewById(R.id.txt_result_account_image);
-        //TODO Activate this
-        //MyApplication.getImageLoader().loadImage(vImage, credentials.getGoogleAccountUser().getImageUrl(), mDefaultUserAccountImage, null);
+        MyApplication.getImageLoader().loadImage(vImage, credentials.getGoogleAccountUser().getImageUrl(), new Size(getResources().getDimensionPixelSize(R.dimen.login_account_image)), mDefaultUserAccountImage, null);
 
         ((TextView) findViewById(R.id.txt_result_account)).setText(credentials.getAccountName());
         findViewById(R.id.btn_result_accept).setOnClickListener(new View.OnClickListener() {
