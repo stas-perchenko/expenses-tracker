@@ -3,7 +3,11 @@ package com.alperez.imageloader.helpers;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -86,13 +90,31 @@ public class ImageROMCache {
 
     /**
      *
-     * @param link
+     * @param fname
      * @param data
-     * @return number of free bytes left in cache
+     * @return number of free bytes left in cache. -1 means cache is in error state
      */
-    private long cacheDataInternal(String link, byte[] data) {
-        //TODO Implement this
-        return 0;
+    private long cacheDataInternal(String fname, byte[] data) {
+        if (mCacheFolder == null) return -1;
+
+        File f = new File(mCacheFolder, fname);
+        if (f.exists()) {
+            if (!f.delete()) {
+                return totalCacheSize;
+            }
+        }
+
+        OutputStream os = null;
+        try {
+            os = new BufferedOutputStream(new FileOutputStream(f));
+            os.write(data);
+            os.flush();
+        } catch(IOException e) {
+            return maxCacheSize - totalCacheSize;
+        } finally {
+            if (os != null) try { os.close(); } catch(IOException e){}
+        }
+        return maxCacheSize - trimCache(maxCacheSize);
     }
 
 
