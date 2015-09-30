@@ -2,6 +2,7 @@ package com.alperez.imageloader.helpers;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -82,9 +83,45 @@ public class ImageROMCache {
     }
 
 
-    private Bitmap decodeBitmapFromCacheInternal(String link, Size scaleToSize) {
-        //TODO Implement this;
+    private Bitmap decodeBitmapFromCacheInternal(String fname, Size scaleToSize) {
+        byte[] data = getDataFromCacheInternal(fname);
+        if (data != null) {
+            if (scaleToSize != null) {
+                BitmapFactory.Options opts = new BitmapFactory.Options();
+                opts.inJustDecodeBounds = true;
+                BitmapFactory.decodeByteArray(data, 0, data.length, opts);
+                return BitmapFactory.decodeByteArray(data, 0, data.length, getScaledOptions(opts, scaleToSize.width, scaleToSize.height));
+            } else {
+                return BitmapFactory.decodeByteArray(data, 0, data.length);
+            }
+        }
         return null;
+    }
+
+    /**
+     * Creates new options with downscale factor set.
+     * @param inOpts
+     * @param targX
+     * @param targY
+     * @return
+     */
+    private BitmapFactory.Options getScaledOptions(BitmapFactory.Options inOpts, int targX, int targY) {
+        float[] factors = new float[]{1f, 2f, 4f, 8f, 16f, 32f, 64f, 128f, 256f, 1024f, 2048f, 4096f};
+        int index = 0;
+        BitmapFactory.Options outOpts = new BitmapFactory.Options();
+        outOpts.inJustDecodeBounds = false;
+        outOpts.inSampleSize = (int)factors[index];
+        try {
+            while (true) {
+                final float nextFactor = factors[index+1];
+                if ((Math.round((float)inOpts.outWidth / nextFactor) < targX) || (Math.round((float)inOpts.outHeight / nextFactor) < targY)) {
+                    break;
+                }
+                outOpts.inSampleSize = (int)nextFactor;
+                index++;
+            }
+        } catch(IndexOutOfBoundsException e) {}
+        return outOpts;
     }
 
     /**
@@ -103,7 +140,7 @@ public class ImageROMCache {
                     os = new BufferedOutputStream(new ByteArrayOutputStream((int)f.length()+512));
 
                     byte[] bb = new byte[512];
-                    int bytesRead = 0;
+                    int bytesRead;
                     while ((bytesRead = is.read(bb)) > 0) {
                         os.write(bb, 0, bytesRead);
                     }
