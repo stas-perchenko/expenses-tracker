@@ -1,7 +1,6 @@
 package com.alperez.imageloader;
 
 import android.content.Context;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -20,8 +19,6 @@ import com.alperez.imageloader.helpers.LoaderSettings;
 import com.alperez.imageloader.helpers.Size;
 import com.alperez.imageloader.task.BitmapWorkerTask;
 import com.alperez.imageloader.utils.Utils;
-
-import java.lang.ref.WeakReference;
 
 /**
  * Created by stanislav.perchenko on 24-Sep-15.
@@ -98,12 +95,12 @@ public final class ImageLoader {
         if (bitmap != null) {
             setBitmapWithOverlayImmediately(v, bitmap, getActualOverlay(overlay));
         } else if(checkForCurrentWork(v, link)) {
-            final BitmapWorkerTask task = new BitmapWorkerTask(fsdf, link, v, scaleTo, mRamCache, mSettings.isUseImageROMCache(), finalPlaceholder, finalOverlay);
-            final AsyncDrawable adr = new AsyncDrawable(mContext.getResources(), finalPlaceholder, task);
+            final BitmapWorkerTask task = new BitmapWorkerTask(mSettings.getImageExtProvider(), link, v, scaleTo, mRamCache, mSettings.isUseImageROMCache(), finalPlaceholder, finalOverlay);
+            final Drawable initialDrawable = BitmapWorkerTask.buildDrawableWithAttachedWorkerTask(mContext.getResources(), finalPlaceholder, task);
             if (v instanceof ImageView) {
-                ((ImageView) v).setImageDrawable(adr);
+                ((ImageView) v).setImageDrawable(initialDrawable);
             } else if (v instanceof ImagePresentationInterface) {
-                ((ImagePresentationInterface) v).setImageDrawable(adr);
+                ((ImagePresentationInterface) v).setImageDrawable(initialDrawable);
             }
 
             // NOTE: This uses a custom version of AsyncTask that has been pulled from the
@@ -130,7 +127,7 @@ public final class ImageLoader {
      */
     private boolean checkForCurrentWork(View v, String link) {
         if ((v instanceof  ImageView) || (v instanceof ImagePresentationInterface)) {
-            final BitmapWorkerTask workerTask = getWorkerTaskForView(v);
+            final BitmapWorkerTask workerTask = BitmapWorkerTask.getWorkerTaskForView(v);
             if (workerTask != null) {
                 final String otherLink = workerTask.getLink();
                 if (otherLink == null || !otherLink.equals(link)) {
@@ -150,20 +147,7 @@ public final class ImageLoader {
     }
 
 
-    private static BitmapWorkerTask getWorkerTaskForView(View v) {
-        if (v != null) {
-            Drawable dr = null;
-            if (v instanceof ImageView) {
-                dr = ((ImageView) v).getDrawable();
-            } else if (v instanceof ImagePresentationInterface) {
-                dr = ((ImagePresentationInterface) v).getDrawable();
-            }
-            if ((dr != null) && (dr instanceof  AsyncDrawable)) {
-                return ((AsyncDrawable) dr).getBitmapWorkerTask();
-            }
-        }
-        return null;
-    }
+
 
 
 
@@ -191,27 +175,6 @@ public final class ImageLoader {
 
     private Drawable getActualOverlay(Drawable overridingOverlay) {
         return (overridingOverlay != null) ? overridingOverlay : ((mSettings != null) ? mSettings.getDefaultOverlay() : null);
-    }
-
-
-    /***********************************************************************************************
-     * A custom Drawable that will be attached to the imageView while the work
-     * is in progress. Contains a reference to the actual worker task, so that
-     * it can be stopped if a new binding is required, and makes sure that only
-     * the last started worker process can bind its result, independently of the
-     * finish order.
-     */
-    private static class AsyncDrawable extends BitmapDrawable {
-        private final WeakReference<BitmapWorkerTask> workerTaskReference;
-
-        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask workerTask) {
-            super(res, bitmap);
-            workerTaskReference = new WeakReference<BitmapWorkerTask>(workerTask);
-        }
-
-        public BitmapWorkerTask getBitmapWorkerTask() {
-            return workerTaskReference.get();
-        }
     }
 
 }

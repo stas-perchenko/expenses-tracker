@@ -1,7 +1,10 @@
 package com.alperez.imageloader.task;
 
 
+import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -64,14 +67,17 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Res
         if ((imageViewReference == null) && imagePresenterReference == null) return null;
 
         // Check for task been canceled
-        if (getAttachedImageView() == null || isCancelled()) {
+        if (getParentViewforThisTask() == null || isCancelled()) {
             return null;
         }
 
 
         Result result = new Result();
-        Bitmap bitmap = ImageROMCache.decodeBitmapFromROMCache(link, scaleToSize);
+        result.placeholder = this.loadingBitmapReference;
+        result.overlay = this.overlayReference;
 
+        //----  Try to get bitmap from ROM cache  ----
+        Bitmap bitmap = ImageROMCache.getBitmapFromROMCache(link, scaleToSize);
         if (bitmap != null) {
             ImageRAMCache rCace = this.ramCacheReference.get();
             if (rCace != null) {
@@ -96,7 +102,7 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Res
         // Wait till at least 300 ms from the last task start, while checking for task been canceled
         synchronized (timeLocker) {
             while ((System.currentTimeMillis() - timeLastStart) < 300) {
-                if (getAttachedImageView() == null || isCancelled()) {
+                if (getParentViewforThisTask() == null || isCancelled()) {
                     break;
                 }
                 try {
@@ -108,30 +114,102 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Res
         }
 
         // Check for task been canceled
-        if (getAttachedImageView() == null || isCancelled()) {
+        if (getParentViewforThisTask() == null || isCancelled()) {
             Log.d(TAG, "doInBackground - break task 2");
             return null;
         }
 
-        // Load content from the network
-        //TODO call to ROM cache for caching after this there.
-        //TODO use external processor if available
-        //byte[] rawData = processBitmap(data);
+        byte[] rawData = null;
+        ImageExternalProvider extLoader = extImageProviderReference.get();
+        if (extLoader != null) {
+            rawData = extLoader.getImageDataSynchronously(this.link);
+        } else {
+            rawData = loadDataInternal(this.link);
+        }
 
-
-        return null;
+        if (rawData != null && rawData.length > 0) {
+            if (useImageROMCache) {
+                ImageROMCache.cacheData(this.link, rawData);
+                result.bitmap = ImageROMCache.getBitmapFromROMCache(this.link, this.scaleToSize);
+            } else {
+                if (this.scaleToSize != null) {
+                    // Potentially need downscaling
+                    BitmapFactory.Options opts = new BitmapFactory.Options();
+                    opts.inJustDecodeBounds = true;
+                    BitmapFactory.decodeByteArray(rawData, 0, rawData.length, opts);
+                    result.bitmap = BitmapFactory.decodeByteArray(rawData, 0, rawData.length, Utils.getScaledOptions(opts, scaleToSize.width, scaleToSize.height));
+                } else { // No need downscaling
+                    result.bitmap = BitmapFactory.decodeByteArray(rawData, 0, rawData.length);
+                }
+            }
+            result.fromNetwork = true;
+        }
+        
+        return result;
     }
 
 
-    private View getAttachedImageView() {
-        //TODO implement this
+    private View getParentViewforThisTask() {
+        View parentViewForThisTask = null;
+        if (imageViewReference != null) {
+            parentViewForThisTask = imageViewReference.get();
+        } else if (imagePresenterReference != null) {
+            parentViewForThisTask = (View) imagePresenterReference.get();
+        }
+
+        if (parentViewForThisTask != null) {
+            BitmapWorkerTask validWorkerTask = getWorkerTaskForView(parentViewForThisTask);  // The task which is currently bound to a View
+                                                                                            // Only one task can be bound
+            if ((validWorkerTask != null) && (this == validWorkerTask)) {
+                return parentViewForThisTask;
+            }
+        }
         return null;
+    }
+
+    public static BitmapWorkerTask getWorkerTaskForView(View v) {
+        if (v != null) {
+            Drawable dr = null;
+            if (v instanceof ImageView) {
+                dr = ((ImageView) v).getDrawable();
+            } else if (v instanceof ImagePresentationInterface) {
+                dr = ((ImagePresentationInterface) v).getDrawable();
+            }
+            if ((dr != null) && (dr instanceof  AsyncDrawable)) {
+                return ((AsyncDrawable) dr).getBitmapWorkerTask();
+            }
+        }
+        return null;
+    }
+
+    public static Drawable buildDrawableWithAttachedWorkerTask(Resources res, Bitmap placeholder, BitmapWorkerTask task) {
+        return new AsyncDrawable(res, placeholder, task);
+    }
+
+    /***********************************************************************************************
+     * A custom Drawable that will be attached to the imageView while the work
+     * is in progress. Contains a reference to the actual worker task, so that
+     * it can be stopped if a new binding is required, and makes sure that only
+     * the last started worker process can bind its result, independently of the
+     * finish order.
+     */
+    private static class AsyncDrawable extends BitmapDrawable {
+        private final WeakReference<BitmapWorkerTask> workerTaskReference;
+
+        public AsyncDrawable(Resources res, Bitmap bitmap, BitmapWorkerTask workerTask) {
+            super(res, bitmap);
+            workerTaskReference = new WeakReference<BitmapWorkerTask>(workerTask);
+        }
+
+        public BitmapWorkerTask getBitmapWorkerTask() {
+            return workerTaskReference.get();
+        }
     }
 
     public class Result {
         public Bitmap bitmap;
         public boolean fromNetwork;
-
-        //TODO Implement result class;
+        public WeakReference<Bitmap> placeholder;
+        public WeakReference<Drawable> overlay;
     }
 }

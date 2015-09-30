@@ -10,6 +10,8 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.alperez.imageloader.utils.Utils;
+
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
@@ -45,7 +47,7 @@ public class ImageROMCache {
         }
     }
 
-    public static Bitmap decodeBitmapFromROMCache(String link, Size scaleToSize) {
+    public static Bitmap getBitmapFromROMCache(String link, Size scaleToSize) {
         if (instance == null) throw new IllegalStateException("ImageROMCache not yet been initialized");
         Bitmap result = null;
         synchronized (instance) {
@@ -124,38 +126,12 @@ public class ImageROMCache {
                 BitmapFactory.Options opts = new BitmapFactory.Options();
                 opts.inJustDecodeBounds = true;
                 BitmapFactory.decodeByteArray(data, 0, data.length, opts);
-                return BitmapFactory.decodeByteArray(data, 0, data.length, getScaledOptions(opts, scaleToSize.width, scaleToSize.height));
+                return BitmapFactory.decodeByteArray(data, 0, data.length, Utils.getScaledOptions(opts, scaleToSize.width, scaleToSize.height));
             } else {
                 return BitmapFactory.decodeByteArray(data, 0, data.length);
             }
         }
         return null;
-    }
-
-    /**
-     * Creates new options with downscale factor set.
-     * @param inOpts
-     * @param targX
-     * @param targY
-     * @return
-     */
-    private BitmapFactory.Options getScaledOptions(BitmapFactory.Options inOpts, int targX, int targY) {
-        float[] factors = new float[]{1f, 2f, 4f, 8f, 16f, 32f, 64f, 128f, 256f, 1024f, 2048f, 4096f};
-        int index = 0;
-        BitmapFactory.Options outOpts = new BitmapFactory.Options();
-        outOpts.inJustDecodeBounds = false;
-        outOpts.inSampleSize = (int)factors[index];
-        try {
-            while (true) {
-                final float nextFactor = factors[index+1];
-                if ((Math.round((float)inOpts.outWidth / nextFactor) < targX) || (Math.round((float)inOpts.outHeight / nextFactor) < targY)) {
-                    break;
-                }
-                outOpts.inSampleSize = (int)nextFactor;
-                index++;
-            }
-        } catch(IndexOutOfBoundsException e) {}
-        return outOpts;
     }
 
     /**
