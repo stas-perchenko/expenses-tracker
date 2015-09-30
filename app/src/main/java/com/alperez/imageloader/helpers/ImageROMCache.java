@@ -3,10 +3,14 @@ package com.alperez.imageloader.helpers;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
@@ -83,8 +87,35 @@ public class ImageROMCache {
         return null;
     }
 
-    private byte[] getDataFromCacheInternal(String link) {
-        //TODO implement this
+    /**
+     *
+     * @param fname
+     * @return byte array of data or null if there is no requested item in cache
+     */
+    private byte[] getDataFromCacheInternal(String fname) {
+        if (mCacheFolder != null) {
+            File f = new File(mCacheFolder, fname);
+            if (f.exists()) {
+                InputStream is = null;
+                OutputStream os = null;
+                try {
+                    is = new BufferedInputStream(new FileInputStream(f));
+                    os = new BufferedOutputStream(new ByteArrayOutputStream((int)f.length()+512));
+
+                    byte[] bb = new byte[512];
+                    int bytesRead = 0;
+                    while ((bytesRead = is.read(bb)) > 0) {
+                        os.write(bb, 0, bytesRead);
+                    }
+                    return ((ByteArrayOutputStream) os).toByteArray();
+                } catch (IOException e) {
+                    return null;
+                } finally {
+                    if (is != null) try { is.close(); } catch(IOException e){}
+                    if (os != null) try { os.close(); } catch(IOException e){}
+                }
+            }
+        }
         return null;
     }
 
