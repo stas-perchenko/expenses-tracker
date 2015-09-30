@@ -1,6 +1,7 @@
 package com.alperez.imageloader.task;
 
 
+import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -122,9 +123,14 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Res
         byte[] rawData = null;
         ImageExternalProvider extLoader = extImageProviderReference.get();
         if (extLoader != null) {
+            //----  Use external loader, provided by client code  ----
             rawData = extLoader.getImageDataSynchronously(this.link);
         } else {
-            rawData = loadDataInternal(this.link);
+            //----  Use internal loader  ----
+            Context ctx = tryGetContext();
+            if ((ctx == null) || ((ctx != null) && Utils.isNetworkAvailable(ctx, true))) {
+                rawData = Utils.loadDataFromNet(this.link);
+            }
         }
 
         if (rawData != null && rawData.length > 0) {
@@ -144,7 +150,7 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Res
             }
             result.fromNetwork = true;
         }
-        
+
         return result;
     }
 
@@ -165,6 +171,16 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Res
             }
         }
         return null;
+    }
+
+    private Context tryGetContext() {
+        Object o = null;
+        if (imageViewReference != null) {
+            o = imageViewReference.get();
+        } else if (imagePresenterReference != null) {
+            o = imagePresenterReference.get();
+        }
+        return (o != null && (o instanceof View)) ? ((View) o).getContext() : null;
     }
 
     public static BitmapWorkerTask getWorkerTaskForView(View v) {
