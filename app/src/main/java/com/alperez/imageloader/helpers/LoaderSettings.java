@@ -12,6 +12,7 @@ public final class LoaderSettings {
     private Drawable defaultOverlay;
     private boolean ramCacheEnabled;
     private int ramCacheSize;
+    private boolean useImageROMCache;
 
     private LoaderSettings(){
         // Only factory-initialization allowed
@@ -31,6 +32,10 @@ public final class LoaderSettings {
 
     public int getRamCacheSize() {
         return ramCacheSize;
+    }
+
+    public boolean isUseImageROMCache() {
+        return useImageROMCache;
     }
 
     /**
@@ -60,6 +65,11 @@ public final class LoaderSettings {
 
         public Builder setRamCacheSize(int ramCacheSize) {
             instance.ramCacheSize = ramCacheSize;
+            return this;
+        }
+
+        public Builder setUseImageROMCache(boolean use) {
+            instance.useImageROMCache = use;
             return this;
         }
 

@@ -90,14 +90,18 @@ public final class ImageLoader {
         if (bitmap != null) {
             setBitmapWithOverlayImmediately(v, bitmap, getActualOverlay(overlay));
         } else if(checkForCurrentWork(v, link)) {
-            /*final BitmapWorkerTask task = new BitmapWorkerTask(link, v, scaleTo, finalPlaceholder, finalOverlay);
+            final BitmapWorkerTask task = new BitmapWorkerTask(link, v, scaleTo, mRamCache, mSettings.isUseImageROMCache(), finalPlaceholder, finalOverlay);
             final AsyncDrawable adr = new AsyncDrawable(mContext.getResources(), finalPlaceholder, task);
+            if (v instanceof ImageView) {
+                ((ImageView) v).setImageDrawable(adr);
+            } else if (v instanceof ImagePresentationInterface) {
+                ((ImagePresentationInterface) v).setImageDrawable(adr);
+            }
 
             // NOTE: This uses a custom version of AsyncTask that has been pulled from the
             // framework and slightly modified. Refer to the docs at the top of the class
             // for more info on what was changed.
-            task.executeOnExecutor(BitmapWorkerTask.DUAL_THREAD_EXECUTOR);*/
-            //TODO Start task
+            task.executeOnExecutor(BitmapWorkerTask.DUAL_THREAD_EXECUTOR);
         }
     }
 

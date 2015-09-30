@@ -1,8 +1,8 @@
 package com.alperez.imageloader.task;
 
+
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.util.Log;
@@ -25,6 +25,7 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Res
 
     private final String link;
     private final Size scaleToSize;
+    private final boolean useImageROMCache;
     private WeakReference<ImageView> imageViewReference;
     private WeakReference<ImagePresentationInterface> imagePresenterReference;
     private final WeakReference<Drawable> overlayReference;
@@ -37,9 +38,10 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Res
     private static long timeLastStart = 0;
     private static final Object timeLocker = new Object(); // Locker object for above time holder
 
-    public BitmapWorkerTask(@NonNull String link, @NonNull View v, @Nullable Size scaleToSize, @Nullable ImageRAMCache ramCache, @Nullable Bitmap placeholder, @Nullable Drawable overlay) {
+    public BitmapWorkerTask(@NonNull String link, @NonNull View v, @Nullable Size scaleToSize, @Nullable ImageRAMCache ramCache, boolean useImageROMCache, @Nullable Bitmap placeholder, @Nullable Drawable overlay) {
         this.link = link;
         this.scaleToSize = scaleToSize;
+        this.useImageROMCache = useImageROMCache;
         if (v instanceof ImageView) {
             imageViewReference = new WeakReference<ImageView>((ImageView) v);
         } else if (v instanceof ImagePresentationInterface) {
