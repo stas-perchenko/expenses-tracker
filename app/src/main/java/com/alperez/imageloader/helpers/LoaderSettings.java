@@ -8,6 +8,7 @@ import android.graphics.drawable.Drawable;
  */
 public final class LoaderSettings {
 
+    private ImageExternalProvider imageExtProvider;
     private Bitmap defaultPlaceholder;
     private Drawable defaultOverlay;
     private boolean ramCacheEnabled;
@@ -36,6 +37,10 @@ public final class LoaderSettings {
 
     public boolean isUseImageROMCache() {
         return useImageROMCache;
+    }
+
+    public ImageExternalProvider getImageExtProvider() {
+        return imageExtProvider;
     }
 
     /**
@@ -70,6 +75,11 @@ public final class LoaderSettings {
 
         public Builder setUseImageROMCache(boolean use) {
             instance.useImageROMCache = use;
+            return this;
+        }
+
+        public Builder setImageExtProvider(ImageExternalProvider imageExtProvider) {
+            instance.imageExtProvider = imageExtProvider;
             return this;
         }
 

@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.alperez.imageloader.helpers.ImageExternalProvider;
 import com.alperez.imageloader.helpers.ImagePresentationInterface;
 import com.alperez.imageloader.helpers.ImageRAMCache;
 import com.alperez.imageloader.helpers.ImageROMCache;
@@ -30,7 +31,8 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Res
     private WeakReference<ImagePresentationInterface> imagePresenterReference;
     private final WeakReference<Drawable> overlayReference;
     private final WeakReference<Bitmap> loadingBitmapReference;
-    private final WeakReference<ImageRAMCache> ramCache;
+    private final WeakReference<ImageRAMCache> ramCacheReference;
+    private final WeakReference<ImageExternalProvider> extImageProviderReference;
 
     /**
      * Single variable which is used for all instances of this task for managing sequential execution.
@@ -38,7 +40,7 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Res
     private static long timeLastStart = 0;
     private static final Object timeLocker = new Object(); // Locker object for above time holder
 
-    public BitmapWorkerTask(@NonNull String link, @NonNull View v, @Nullable Size scaleToSize, @Nullable ImageRAMCache ramCache, boolean useImageROMCache, @Nullable Bitmap placeholder, @Nullable Drawable overlay) {
+    public BitmapWorkerTask(@Nullable ImageExternalProvider extImageProvider, @NonNull String link, @NonNull View v, @Nullable Size scaleToSize, @Nullable ImageRAMCache ramCache, boolean useImageROMCache, @Nullable Bitmap placeholder, @Nullable Drawable overlay) {
         this.link = link;
         this.scaleToSize = scaleToSize;
         this.useImageROMCache = useImageROMCache;
@@ -49,7 +51,8 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Res
         }
         overlayReference = new WeakReference<Drawable>(overlay);
         loadingBitmapReference = new WeakReference<Bitmap>(placeholder);
-        this.ramCache = new WeakReference<ImageRAMCache>(ramCache);
+        ramCacheReference = new WeakReference<ImageRAMCache>(ramCache);
+        extImageProviderReference = new WeakReference<ImageExternalProvider>(extImageProvider);
     }
 
     public String getLink() {
@@ -70,7 +73,7 @@ public class BitmapWorkerTask extends AsyncTask<Void, Void, BitmapWorkerTask.Res
         Bitmap bitmap = ImageROMCache.decodeBitmapFromROMCache(link, scaleToSize);
 
         if (bitmap != null) {
-            ImageRAMCache rCace = this.ramCache.get();
+            ImageRAMCache rCace = this.ramCacheReference.get();
             if (rCace != null) {
                 rCace.addBitmapToMemoryCache(Utils.getSizedImageLink(link, scaleToSize), bitmap, true);
             }

@@ -29,11 +29,11 @@ import java.lang.ref.WeakReference;
 public final class ImageLoader {
 
     private static final String TAG = "Imageloader";
-    //TODO implement setter for debug mode which will enable logging.
 
     private Context mContext;
     private LoaderSettings mSettings;
     private ImageRAMCache mRamCache;
+    private boolean debugMode;
 
 
     public ImageLoader(Context context, LoaderSettings settings) {
@@ -64,6 +64,14 @@ public final class ImageLoader {
         loadImageInternal((View) v, link, scaleTo, placeholder, overlay);
     }
 
+    public boolean isDebugMode() {
+        return debugMode;
+    }
+
+    public void setDebugMode(boolean debugMode) {
+        this.debugMode = debugMode;
+    }
+
     /**
      *
      * @param v Instance of the View where image will be loaded. Must either be an ImageView or implements ImagePresentationInterface
@@ -90,7 +98,7 @@ public final class ImageLoader {
         if (bitmap != null) {
             setBitmapWithOverlayImmediately(v, bitmap, getActualOverlay(overlay));
         } else if(checkForCurrentWork(v, link)) {
-            final BitmapWorkerTask task = new BitmapWorkerTask(link, v, scaleTo, mRamCache, mSettings.isUseImageROMCache(), finalPlaceholder, finalOverlay);
+            final BitmapWorkerTask task = new BitmapWorkerTask(fsdf, link, v, scaleTo, mRamCache, mSettings.isUseImageROMCache(), finalPlaceholder, finalOverlay);
             final AsyncDrawable adr = new AsyncDrawable(mContext.getResources(), finalPlaceholder, task);
             if (v instanceof ImageView) {
                 ((ImageView) v).setImageDrawable(adr);
@@ -120,7 +128,7 @@ public final class ImageLoader {
      * @param link
      * @return true if the requesting work is allowed to be launched.
      */
-    private static boolean checkForCurrentWork(View v, String link) {
+    private boolean checkForCurrentWork(View v, String link) {
         if ((v instanceof  ImageView) || (v instanceof ImagePresentationInterface)) {
             final BitmapWorkerTask workerTask = getWorkerTaskForView(v);
             if (workerTask != null) {
@@ -128,7 +136,7 @@ public final class ImageLoader {
                 if (otherLink == null || !otherLink.equals(link)) {
                     workerTask.cancel(true);
                     if (BuildConfig.DEBUG) {
-                        Log.e(TAG, "A work was cancelled for "+otherLink+". New work - "+link);
+                        if (debugMode) Log.e(TAG, "A work was cancelled for "+otherLink+". New work - "+link);
                     }
                 } else {
                     // The same work is already in progress

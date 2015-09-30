@@ -31,7 +31,8 @@ public class MyApplication extends Application {
                 .setDefaultPlaceholder(null)
                 .setRamCacheEnabled(true)
                 .setRamCacheSize(ImageRAMCache.getCacheSizeAsRAMPercent(ctx, 0.12f))
-                .setUseImageROMCache(true);
+                .setUseImageROMCache(true)
+                .setImageExtProvider(null);
 
         mImageLoader = new ImageLoader(ctx, sBuilder.build());
 
