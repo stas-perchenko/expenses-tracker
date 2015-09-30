@@ -3,8 +3,6 @@ package com.alperez.imageloader.helpers;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 
-import java.io.File;
-
 /**
  * Created by stanislav.perchenko on 24-Sep-15.
  */
@@ -12,8 +10,6 @@ public final class LoaderSettings {
 
     private Bitmap defaultPlaceholder;
     private Drawable defaultOverlay;
-    private File discCache;
-    private int discCacheSize;
     private boolean ramCacheEnabled;
     private int ramCacheSize;
 
@@ -27,14 +23,6 @@ public final class LoaderSettings {
 
     public Drawable getDefaultOverlay() {
         return defaultOverlay;
-    }
-
-    public File getDiscCache() {
-        return discCache;
-    }
-
-    public int getDiscCacheSize() {
-        return discCacheSize;
     }
 
     public boolean isRamCacheEnabled() {
@@ -62,16 +50,6 @@ public final class LoaderSettings {
 
         public Builder setDefaultOverlay(Drawable defaultOverlay) {
             instance.defaultOverlay = defaultOverlay;
-            return this;
-        }
-
-        public Builder setDiscCache(File discCache) {
-            instance.discCache = discCache;
-            return this;
-        }
-
-        public Builder setDiscCacheSize(int discCacheSize) {
-            instance.discCacheSize = discCacheSize;
             return this;
         }
 

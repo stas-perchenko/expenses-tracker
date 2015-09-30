@@ -1,8 +1,14 @@
 package com.alperez.imageloader.helpers;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.os.Build;
+import android.os.Environment;
+import android.support.annotation.Nullable;
+import android.text.TextUtils;
+import android.util.Log;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -21,7 +27,7 @@ import java.util.UUID;
  * Created by stanislav.perchenko on 29-Sep-15.
  */
 public class ImageROMCache {
-    //TODO Implement this
+    public static final String DEFAULT_CACHE_DIR_NAME = "image_cache";
 
     private static ImageROMCache instance;
 
@@ -29,11 +35,11 @@ public class ImageROMCache {
      * This method must be called once before any using of the ImageROMCache
      * @param context
      */
-    public static void instantiate(Context context) {
+    public static void instantiate(Context context, @Nullable File cacheDirectory, int maxCacheSizeMB, boolean debugMode) {
         if (instance == null) {
             synchronized (ImageROMCache.class) {
                 if (instance == null) {
-                    instance = new ImageROMCache(context);
+                    instance = new ImageROMCache(context, cacheDirectory, maxCacheSizeMB, debugMode);
                 }
             }
         }
@@ -74,12 +80,40 @@ public class ImageROMCache {
 
 
 
+    /**********************************************************************************************/
+    private class CachedItemDescriptor {
+        public long timeCreated;
+        public int size;
+        public String relativeName;
+        public CachedItemDescriptor(String relativeName) {
+            this.relativeName = relativeName;
+        }
+    }
 
 
 
 
-    private ImageROMCache(Context context) {
-        //TODO Implement this
+    /**********************************************************************************************/
+    private File mCacheFolder;
+    private long maxCacheSize;
+    private boolean debugMode;
+
+    private long totalCacheSize;
+    private Map<Long, CachedItemDescriptor> cachedLinksMap;
+
+
+    private ImageROMCache(Context context, File cacheDir, int maxCacheSizeMB, boolean debugMode) {
+        if (cacheDir != null && cacheDir.exists() && cacheDir.isDirectory()) {
+            mCacheFolder = cacheDir;
+        } else {
+            try {
+                mCacheFolder = ImageROMCache.getFinalCacheFolder(context, DEFAULT_CACHE_DIR_NAME);
+            } catch(ExternalMediaException e){
+                //TODO Log here
+            }
+        }
+        maxCacheSize = 1024*1024*maxCacheSizeMB;
+        this.debugMode = debugMode;
     }
 
 
@@ -163,7 +197,11 @@ public class ImageROMCache {
      * @return number of free bytes left in cache. -1 means cache is in error state
      */
     private long cacheDataInternal(String fname, byte[] data) {
-        if (mCacheFolder == null) return -1;
+        if (mCacheFolder == null) {
+            return -1;
+        } else if (maxCacheSize == 0) {
+            return 0;
+        }
 
         File f = new File(mCacheFolder, fname);
         if (f.exists()) {
@@ -183,25 +221,6 @@ public class ImageROMCache {
             if (os != null) try { os.close(); } catch(IOException e){}
         }
         return maxCacheSize - trimCache(maxCacheSize);
-    }
-
-
-
-
-    private File mCacheFolder;
-    private long maxCacheSize;
-    private long maxNonExeedCachSize;
-
-    private long totalCacheSize;
-    private Map<Long, CachedItemDescriptor> cachedLinksMap;
-
-    private class CachedItemDescriptor {
-        public long timeCreated;
-        public int size;
-        public String relativeName;
-        public CachedItemDescriptor(String relativeName) {
-            this.relativeName = relativeName;
-        }
     }
 
 
@@ -279,5 +298,93 @@ public class ImageROMCache {
                 }
             }
         }
+    }
+
+    private static File getFinalCacheFolder(Context context, String dirName) throws ExternalMediaException {
+        File dir = ImageROMCache.getDiskCacheDir(context, dirName);
+        return ImageROMCache.createDirIfNeeded(dir);
+    }
+
+    /**
+     * Get a usable cache directory (external if available, internal otherwise).
+     *
+     * @param context The context to use
+     * @param uniqueName A unique directory name to append to the cache dir
+     * @return The cache dir
+     */
+    public static File getDiskCacheDir(Context context, String uniqueName) {
+        // Check if media is mounted or storage is built-in, if so, try and use
+        // external cache dir
+        // otherwise use internal cache dir
+        boolean useExternalMemory = Environment.MEDIA_MOUNTED.equals(Environment.getExternalStorageState()) || !ImageROMCache.isExternalStorageRemovable();
+        File cacheFolder;
+        if (useExternalMemory) {
+            cacheFolder = ImageROMCache.getExternalCacheDir(context);
+        } else {
+            try {
+                cacheFolder = context.getCacheDir();
+            } catch (Exception e) {
+                cacheFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS); // Lastly, try this as a last ditch effort
+            }
+        }
+
+        return TextUtils.isEmpty(uniqueName) ? cacheFolder : new File(cacheFolder.getPath() + File.separator + uniqueName);
+    }
+
+    /**
+     * Check if external storage is built-in or removable.
+     *
+     * @return True if external storage is removable (like an SD card), false
+     *         otherwise.
+     */
+    @TargetApi(9)
+    public static boolean isExternalStorageRemovable() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.GINGERBREAD) {
+            return Environment.isExternalStorageRemovable();
+        }
+        return true;
+    }
+
+    /**
+     * Get the external app cache directory.
+     *
+     * @param context
+     *            The context to use
+     * @return The external cache dir
+     */
+    @TargetApi(8)
+    public static File getExternalCacheDir(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.FROYO) {
+            return context.getExternalCacheDir();
+        }
+
+        // Before Froyo we need to construct the external cache dir ourselves
+        final String cacheDir = "/Android/data/" + context.getPackageName() + "/cache/";
+        return new File(Environment.getExternalStorageDirectory().getPath() + cacheDir);
+    }
+
+    /**
+     * Creates a directory and puts a .nomedia file in it
+     *
+     *
+     * @param dir
+     * @return new dir
+     * @throws ExternalMediaException
+     */
+    private static File createDirIfNeeded(File dir) throws ExternalMediaException {
+        if ((dir != null) && !dir.exists()) {
+            if (!dir.mkdirs() && !dir.isDirectory()) {
+                Log.d("CineLocations", "failed to create directory");
+                throw new ExternalMediaException("error create directory");
+            }
+            File noMediaFile = new File(dir, ".nomedia");
+            try {
+                noMediaFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new ExternalMediaException("error create .nomedia file");
+            }
+        }
+        return dir;
     }
 }
